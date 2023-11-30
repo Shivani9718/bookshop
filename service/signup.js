@@ -101,6 +101,14 @@ app.get('/', (req, res) => {
       console.error('Missing fields:', missingFields);
       return res.status(400).json({ error: `Missing required fields: ${missingFields.join(', ')}` });
     }
+    const existingUser= await db('users').where('username', username).first();
+    if (existingUser) {
+      return res.status(400).json({ error: "User already Exist" });
+    }
+    const existingemail= await db('users').where('email', email).first();
+    if (existingemail) {
+      return res.status(400).json({ error: "email already exist" });
+    }
     const user = {
       id : req.body._id,
       first_name: req.body.first_name,
@@ -126,7 +134,7 @@ app.get('/', (req, res) => {
 // Print or use the generated token
  console.log('Generated Token:', token);
 
-  res.json({ token ,user,message:"regisred successful"});
+  res.json({ token ,user,message:"registered successful"});
     
   const hashedPassword = await bcrypt.hash(password, 10);
 

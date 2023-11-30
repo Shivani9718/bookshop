@@ -58,7 +58,22 @@ function isPasswordComplex(password) {
     return isbnRegex.test(isbn);
   }
 
- 
+  function isValidPrice(price) {
+    
+    if (typeof price !== 'number') {
+      return false;
+    }
+  
+    if (price < 0 || price >= 10000) {
+      return false;
+    }
+
+    if (!/^\d+(\.\d{1,4})?$/.test(price.toString())) {
+      return false;
+    }
+
+    return true;
+  }
   function isValidPublicationDate(publicationDate) {
     // Split the date string into parts
     const parts = publicationDate.split('/');
@@ -82,5 +97,6 @@ function isPasswordComplex(password) {
     validateGmail,
     isValidBookTitle,
     isValidISBN,
-    isValidPublicationDate
+    isValidPublicationDate,
+    isValidPrice
   };

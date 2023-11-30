@@ -78,7 +78,22 @@ function isValidName(name) {
     // Test the input against the regular expression
     return isbnRegex.test(isbn);
   }
+  function isValidPrice(price) {
+    
+    if (typeof price !== 'number') {
+      return false;
+    }
+  
+    if (price < 0 || price >= 10000) {
+      return false;
+    }
 
+    if (!/^\d+(\.\d{1,4})?$/.test(price.toString())) {
+      return false;
+    }
+
+    return true;
+  }
   
   function isValidPublicationDate(publicationDate) {
     // Split the date string into parts
@@ -101,7 +116,7 @@ app.post('/addbook', async (req, res) => {
       const { title, isbn, publication_date, author, Store, description, quantity, Category, price, is_available } = req.body;
   
       console.log(req.body);
-      const validFields = ['title', 'author', 'isbn', 'publication_date', 'Category','price','Store','is_available','quantity','descrption']; // Add all valid fields
+      const validFields = ['title', 'author', 'isbn', 'publication_date', 'Category','price','Store','is_available','description']; // Add all valid fields
 
       const invalidFields = Object.keys(req.body).filter(field => !validFields.includes(field));
 
@@ -111,7 +126,10 @@ if (invalidFields.length > 0) {
       if (!req.body || Object.keys(req.body).length === 0) {
         return res.status(400).json({ error: 'Empty request body' });
       }
-
+      const existingisbn = await db('books').where('isbn', isbn).first();
+    if (existingisbn) {
+      return res.status(400).json({ error: 'isbn no.  already exist' });
+    }
     const missingFields = [];
 
      if (!title) missingFields.push('title');
@@ -119,7 +137,7 @@ if (invalidFields.length > 0) {
      if (!publication_date) missingFields.push('publication_date');
      if (!author) missingFields.push('author');
      if (!Store) missingFields.push('Store');
-     if (!quantity) missingFields.push('quantity');
+     //if (!quantity) missingFields.push('quantity');
      if (!Category) missingFields.push('Category');
      if (!price) missingFields.push('price');
 
@@ -147,15 +165,15 @@ if (invalidFields.length > 0) {
       if (!isValidISBN(isbn) ) {
         return res.status(400).json({ error: 'Invalid isbn or isbn can not be null' });
       }
+      if (!isValidPrice(price) ) {
+        return res.status(400).json({ error: 'Invalid price . price must be greater than 0 and less than 10000 with only 4 decimal.' });
+      }
       const storeExists = await db('bookstore').where('store', Store).first();
   
       if (!storeExists) {
         return res.status(400).json({ error: 'Invalid Store. Store does not exist' });
       }
-      const existingisbn = await db('users').where('isbn', isbn).first();
-    if (existingisbn) {
-      return res.status(400).json({ error: 'isbn no.  already exist' });
-    }
+     
   
       if (!isValidPublicationDate(publication_date)) {
         return res.status(400).json({ error: 'Invalid Date' });
@@ -172,7 +190,7 @@ if (invalidFields.length > 0) {
           author,
           Store,
           description,
-          quantity,
+          //quantity,
           Category,
           price,
          is_available :isAvailableValue

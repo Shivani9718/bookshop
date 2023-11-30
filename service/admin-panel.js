@@ -77,9 +77,19 @@ app.get('/admin-panel/getALLbooks', async (req, res) => {
 //     }
 //   });
 app.delete('/admin-panel/DELETEbooks/:bookId', async (req, res) => {
-    const bookId = req.params.bookId;
+    const bookId = req.params.bookId.trim();
   
     try {
+      if (bookId === '') {
+        //validationErrors.push('Book ID cannot be empty');
+        return res.status(400).json({ error: "Book ID cannot be empty" });
+      }
+      
+      if (isNaN(bookId)) {
+        //validationErrors.push('Book ID invalid format');
+        return res.status(400).json({ error: "Book ID invalid format" });
+      }
+    
       await db.transaction(async (trx) => {
         // Fetch the book before deletion for potential rollback
         const bookToDelete = await trx('books').where('id', bookId).first();
@@ -122,17 +132,15 @@ app.get('/admin-panel/categories', async (req, res) => {
 });
 
 app.get('/admin-panel/GETbyCATEGORIES/:Category', async (req, res) => {
-  const Category = req.params.Category.trim();
-  console.log("Categgory  : ", Category)
-  if (Category === '') {
+  const CategorySearchByUser = req.params.Category.trim();
+  console.log("Category  : ", CategorySearchByUser)
+  if (CategorySearchByUser === '') {
     return res.status(400).json({ error: 'Category parameter is missing' });
   }
   try {
-    // If category is not provided, return an error
-    
+    const userEnteredCategory = CategorySearchByUser.toLowerCase(); // Convert user input to lowercase
+    const FetchByCategory = await db('books').whereRaw('LOWER("Category") = ?', [userEnteredCategory]);
 
-    // Fetch books based on the specified category
-    const FetchByCategory = await db.select('*').from('books').where('Category',Category);
 
     if (FetchByCategory.length > 0) {
       res.json(FetchByCategory);
@@ -180,7 +188,8 @@ app.put('/update/:id', validateBookData, async (req, res) => {
     const existingBook = await db('books').where('id', bookId).first();
 
     if (!existingBook) {
-      return res.status(404).json({ error: 'Book not found' });
+      return res.
+      status(404).json({ error: 'Book not found' });
     }
     
     // Update the book with the new fields

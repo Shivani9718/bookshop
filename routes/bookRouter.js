@@ -57,6 +57,12 @@ function validateBookData(req, res, next) {
       validationErrors.push('invalid book title');
      //return res.status(400).json({ error: 'Invalid book title' });
     } 
+    if 
+    (updatedFields.price && !bookValidator.isValidPrice(updatedFields.price))
+    {
+      validationErrors.push('invalid price');
+     //return res.status(400).json({ error: 'Invalid book title' });
+    }
    if (updatedFields.isbn && !bookValidator.isValidISBN(updatedFields.isbn))
     {
       validationErrors.push('invalid book isbn no');
