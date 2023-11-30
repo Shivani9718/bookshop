@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Book</title>
+</head>
+<body>
+
+  <h2>Add a New Book</h2>
+
+  <form action="/addbook" method="post">
+    <!-- Title -->
+    <label for="title">Title:</label>
+    <input type="text" id="title" name="title" required>
+    <br>
+
+    <!-- ISBN -->
+    <label for="isbn">ISBN:</label>
+    <input type="text" id="isbn" name="isbn" required>
+    <br>
+
+    <!-- Author -->
+    <label for="author">Author:</label>
+    <input type="text" id="author" name="author" required>
+    <br>
+
+    <!-- Publication Date -->
+    <label for="publication_date">Publication Date:</label>
+    <input type="date" id="publication_date" name="publication_date">
+    <br>
+
+    <!-- Description -->
+    <label for="description">Description:</label>
+    <textarea id="description" name="description"></textarea>
+    <br>
+    <label for="Store">store:</label>
+    <textarea id="Store" name="Store"></textarea>
+    <br>
+    
+    
+
+    <!-- Category -->
+    <label for="category">Category:</label>
+    <input type="text" id="Category" name="Category" required>
+    <br>
+
+    <!-- Price -->
+    <label for="price">Price:</label>
+    <input type="number" id="price" name="price" step="0.01" required>
+    <br>
+    <label for="quantity">Quntity:</label>
+    <input type="text" id="quantity" name="quantity" required>
+    <br>
+    <!-- Availability -->
+    <label for="is_available">Availability:</label>
+    <select id="is_available" name="is_available" required>
+      <option value="true">Available</option>
+      <option value="false">Not Available</option>
+    </select>
+    <br>
+
+    <!-- Submit Button -->
+    <button type="submit">Add Book</button>
+  </form>
+
+</body>
+</html>
