@@ -1,12 +1,22 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const bcrypt = require('bcrypt');
+
 const knex = require('knex');
-const { Pool } = require('pg');
-const cors = require('cors');
-const path = require('path');
-//const bookValidator = require('../validators/bookValidators');
+const config = require('../knexfile'); // Adjust the path based on your project structure
 const app = express();
+const db = knex(config);
+const jwt = require('jsonwebtoken');
+ const bcrypt = require('bcrypt');
+ const path = require('path');
+ const router = express.Router();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+
+
+//const path = require('path');
+const bookValidator = require('../validators/bookValidators');
+//const app = express();
 const PORT = process.env.PORT || 8090;
 const { validateBookData } = require('../routes/bookRouter');
 
@@ -14,43 +24,10 @@ app.use(bodyParser.json());
 app.use(express.json());
 
 
-app.use(express.urlencoded({ extended: true }));
-    
-    
-app.use(express.static(path.join(__dirname, 'public')));
-const publicPath = path.join(__dirname, '..', 'public');
 
-app.use(express.static(publicPath));
-    // Database connection
-    const pool = new Pool({
-      host: 'localhost',
-      database: 'final',
-      user: 'postgres',
-      password: '12345',
-      port: 5432, // Default PostgreSQL port
-      //ssl: false, // Set to true for SSL connection, false for local development
-    });
-    pool.connect((err)=>{
-        if(err){
-            console.log(err);
-        }
-        else{
-            console.log("database connected");
-        }
-    })
-    
-    //const knex = require('knex');
-    const config = require('../knexfile'); // Adjust the path based on your project structure
-    
-    const db = knex(config);
 
-app.use(express.json());
-// app.get('/', (req, res) => {
-//     res.sendFile('admin-panel.html', { root: publicPath });
-//   });
 
-// Fetch all books route using Knex
-app.get('/admin-panel/getALLbooks', async (req, res) => {
+router.get('/admin-panel/getALLbooks', async (req, res) => {
     try {
       const books = await db.select('*').from('books');
       res.json(books);
@@ -76,7 +53,7 @@ app.get('/admin-panel/getALLbooks', async (req, res) => {
 //       res.status(500).send('Internal Server Error');
 //     }
 //   });
-app.delete('/admin-panel/DELETEbooks/:bookId', async (req, res) => {
+router.delete('/admin-panel/DELETEbooks/:bookId', async (req, res) => {
     const bookId = req.params.bookId.trim();
   
     try {
@@ -114,9 +91,9 @@ app.delete('/admin-panel/DELETEbooks/:bookId', async (req, res) => {
     }
   });
   
-  // Fetch books by category
- // Fetch all book categories       
-app.get('/admin-panel/categories', async (req, res) => {
+//   // Fetch books by category
+//  // Fetch all book categories       
+router.get('/admin-panel/categories', async (req, res) => {
     try {
         const categories = await db.distinct('Category').from('books');
         
@@ -131,7 +108,8 @@ app.get('/admin-panel/categories', async (req, res) => {
     }
 });
 
-app.get('/admin-panel/GETbyCATEGORIES/:Category', async (req, res) => {
+router.get('/admin-panel/GETbyCATEGORIES/:Category', async (req, res) => {
+  console.log("here")
   const CategorySearchByUser = req.params.Category.trim();
   console.log("Category  : ", CategorySearchByUser)
   if (CategorySearchByUser === '') {
@@ -152,7 +130,7 @@ app.get('/admin-panel/GETbyCATEGORIES/:Category', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-app.put('/update/:id', validateBookData, async (req, res) => {
+router.put('/update/:id', validateBookData, async (req, res) => {
   const bookId = req.params.id.trim();
    
   if (bookId === '') {
@@ -209,10 +187,10 @@ app.put('/update/:id', validateBookData, async (req, res) => {
 
    
 
-
+module.exports = router;
   
   
 // Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+// app.listen(PORT, () => {
+//   console.log(`Server is running on http://localhost:${PORT}`);
+// });

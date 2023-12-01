@@ -10,7 +10,7 @@ const path = require('path');
 //   const addbookRoutes = require('./addbook');
 
 const app = express();
-const port = 8090;
+//const port = 8090;
 const publicPath = path.join(__dirname, '..', 'public');
 
 app.use(express.static(publicPath));
@@ -90,6 +90,6 @@ const db = knex(config);
   app.get('/admin-panel', (req, res) => {
     res.sendFile('admin-panel.html', { root: publicPath });
   })
- app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
- });
+//  app.listen(port, () => {
+//   console.log(`Server is running on http://localhost:${port}`);
+//  });

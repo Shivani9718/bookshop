@@ -4,7 +4,7 @@ const { Pool } = require('pg');
 const cors = require('cors');
 const path = require('path');
 const app = express();
-const port = 8090;
+//const port = 8090;
 
 // Middleware
 app.use(express.json());
@@ -112,6 +112,6 @@ db('bookstore')
     db.destroy();
   });
   //const port = process.env.PORT || 8000;
-  app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-  });
+  // app.listen(port, () => {
+  //   console.log(`Server is running on http://localhost:${port}`);
+  // });

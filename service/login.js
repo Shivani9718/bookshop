@@ -1,61 +1,65 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { Pool } = require('pg');
-const cors = require('cors');
-
+// const { Pool } = require('pg');
+// const cors = require('cors');
+const knex = require('knex');
+const config = require('../knexfile'); // Adjust the path based on your project structure
+const app = express();
+const db = knex(config);
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const path = require('path');
-// const router = express.Router(); 
+ const bcrypt = require('bcrypt');
+ const path = require('path');
+ const router = express.Router();
+
 //   const loginRoutes = require('./login');
 //   const registerRoutes = require('./signup');
 //   const addbookRoutes = require('./addbook');
 
-const app = express();
-const port = 8090;
+// const app = express();
+// const port = 8090;
 
 // Middleware
 // app.use('/login', loginRoutes);
 // app.use('/signup', registerRoutes);
 // app.use('/addbook', addbookRoutes);
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
+// app.use(express.static(path.join(__dirname, 'public')));
 
 // Database connection
-const pool = new Pool({
-  host: 'localhost',
-  database: 'final',
-  user: 'postgres',
-  password: '12345',
-  port: 5432, // Default PostgreSQL port
-  //ssl: false, // Set to true for SSL connection, false for local development
-});
- pool.connect((err)=>{
-    if(err){
-        console.log(err);
-    }
-    else{
-        console.log("database connected");
-    }
- })
+// const pool = new Pool({
+//   host: 'localhost',
+//   database: 'final',
+//   user: 'postgres',
+//   password: '12345',
+//   port: 5432, // Default PostgreSQL port
+//   //ssl: false, // Set to true for SSL connection, false for local development
+// });
+//  pool.connect((err)=>{
+//     if(err){
+//         console.log(err);
+//     }
+//     else{
+//         console.log("database connected");
+//     }
+//  })
 
-const knex = require('knex');
-const config = require('../knexfile'); // Adjust the path based on your project structure
+// const knex = require('knex');
+// const config = require('../knexfile'); // Adjust the path based on your project structure
 
-const db = knex(config);
+// const db = knex(config);
 
-const publicPath = path.join(__dirname, '..', 'public');
+// const publicPath = path.join(__dirname, '..', 'public');
 
-app.use(express.static(publicPath));
+// app.use(express.static(publicPath));
 
- app.get('/', (req, res) => {
-  res.sendFile('login.html', { root: publicPath });
- });
+//  app.get('/', (req, res) => {
+//   res.sendFile('login.html', { root: publicPath });
+//  });
 //  app.get('/signup', (req, res) => {
 //   res.sendFile(__dirname + '/login.html');
 // });
- app.post('/login', async (req, res) => {
+ router.post('/', async (req, res) => {
   const { username, password } = req.body;
 
   
@@ -113,6 +117,8 @@ app.use(express.static(publicPath));
   // app.get('/addbook', (req, res) => {
   //   res.sendFile(__dirname + '/addbook.html');
   // })
- app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
- });
+//  app.listen(port, () => {
+//   console.log(`Server is running on http://localhost:${port}`);
+//  });
+
+module.exports = router;

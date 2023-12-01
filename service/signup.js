@@ -1,41 +1,42 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { Pool } = require('pg');
-const cors = require('cors');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const path = require('path');
-const app = express();
-const port = 8090;
 
+const knex = require('knex');
+const config = require('../knexfile'); // Adjust the path based on your project structure
+const app = express();
+const db = knex(config);
+const jwt = require('jsonwebtoken');
+ const bcrypt = require('bcrypt');
+ const path = require('path');
+ const router = express.Router();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Database connection
-const pool = new Pool({
-  host: 'localhost',
-  database: 'final',
-  user: 'postgres',
-  password: '12345',
-  port: 5432,
-});
+// // Database connection
+// const pool = new Pool({
+//   host: 'localhost',
+//   database: 'final',
+//   user: 'postgres',
+//   password: '12345',
+//   port: 5432,
+// });
 
-pool.connect((err) => {
-  if (err) {
-    console.log(err);
-  } else {
-    console.log('database connected');
-  }
-});
+// pool.connect((err) => {
+//   if (err) {
+//     console.log(err);
+//   } else {
+//     console.log('database connected');
+//   }
+// });
 
-const knex = require('knex');
-const config = require('../knexfile');
+// const knex = require('knex');
+// const config = require('../knexfile');
 
-const db = knex(config);
+// const db = knex(config);
 
-const publicPath = path.join(__dirname, '..', 'public');
+// const publicPath = path.join(__dirname, '..', 'public');
 
-app.use(express.static(publicPath));
+// app.use(express.static(publicPath));
 function isPasswordComplex(password) {
   const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]+$/;
   return passwordRegex.test(password);
@@ -58,10 +59,10 @@ function validateGmail(email) {
   return gmailRegex.test(email);
 }
 
-app.get('/', (req, res) => {
-  res.sendFile('signup.html', { root: publicPath });
- });
- app.post('/signup', async (req, res) => {
+// app.get('/', (req, res) => {
+//   res.sendFile('signup.html', { root: publicPath });
+//  });
+ router.post('/', async (req, res) => {
   const { first_name, last_name, username, email, password } = req.body;
   const validFields = ['first_name', 'last_name', 'username', 'email', 'password'];
     const invalidFields = Object.keys(req.body).filter(field => !validFields.includes(field));
@@ -73,21 +74,7 @@ app.get('/', (req, res) => {
     if (!req.body || Object.keys(req.body).length === 0) {
       return res.status(400).json({ error: 'Empty request body' });
     }
-    if (!isPasswordComplex(password)) {
-      return res.status(400).json({ error: 'Password requirements not met' });
-    }
-
-    if (!isValidName(first_name) || !isValidName(last_name)) {
-      return res.status(400).json({ error: 'Invalid names' });
-    }
-
-    if (!isValidUsername(username)) {
-      return res.status(400).json({ error: 'Invalid username' });
-    }
-
-    if (!validateGmail(email)) {
-      return res.status(400).json({ error: 'Invalid email' });
-    }
+    
 
     const missingFields = [];
 
@@ -103,7 +90,7 @@ app.get('/', (req, res) => {
     }
     const existingUser= await db('users').where('username', username).first();
     if (existingUser) {
-      return res.status(400).json({ error: "User already Exist" });
+      return res.status(400).json({ error: "Username already Exist" });
     }
     const existingemail= await db('users').where('email', email).first();
     if (existingemail) {
@@ -119,6 +106,21 @@ app.get('/', (req, res) => {
       email:req.body.email,
       
   };
+  if (!isPasswordComplex(password)) {
+    return res.status(400).json({ error: 'Password requirements not met' });
+  }
+
+  if (!isValidName(first_name) || !isValidName(last_name)) {
+    return res.status(400).json({ error: 'Invalid names' });
+  }
+
+  if (!isValidUsername(username)) {
+    return res.status(400).json({ error: 'Invalid username' });
+  }
+
+  if (!validateGmail(email)) {
+    return res.status(400).json({ error: 'Invalid email' });
+  }
   // secret key
   const secretKey = 'the_secret_key_is_secret_key_only';
   // Generate a token with a secret key
@@ -154,8 +156,8 @@ app.get('/', (req, res) => {
   }
 });
   
+module.exports = router;
 
-
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
-});
+// app.listen(port, () => {
+//   console.log(`Server is running on http://localhost:${port}`);
+// });

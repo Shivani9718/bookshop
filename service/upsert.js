@@ -6,38 +6,39 @@ const knex = require('knex');
 const config = require('../knexfile');
 const db = knex(config);
 const app = express();
-const port = 8090;
+const router = express.Router();
+// const port = 8091;
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
+// app.use(express.static(path.join(__dirname, 'public')));
 
-// Database connection
-const pool = new Pool({
-  host: 'localhost',
-  database: 'final',
-  user: 'postgres',
-  password: '12345',
-  port: 5432,
-});
+// // Database connection
+// const pool = new Pool({
+//   host: 'localhost',
+//   database: 'final',
+//   user: 'postgres',
+//   password: '12345',
+//   port: 5432,
+// });
 
-pool.connect((err) => {
-  if (err) {
-    console.log(err);
-  } else {
-    console.log('Database connected');
-  }
-});
+// pool.connect((err) => {
+//   if (err) {
+//     console.log(err);
+//   } else {
+//     console.log('Database connected');
+//   }
+// });
 
-const publicPath = path.join(__dirname, '..', 'public');
+// const publicPath = path.join(__dirname, '..', 'public');
 
-app.use(express.static(publicPath));
+// app.use(express.static(publicPath));
 
     
 
 
 
-app.post('/upsert', async (req, res) => {
+router.post('/', async (req, res) => {
     try {
       let bookDataFromBody = req.body;
       console.log(bookDataFromBody.id);
@@ -70,7 +71,7 @@ app.post('/upsert', async (req, res) => {
             const { title, isbn, publication_date, author, Store, description, quantity, Category, price, is_available } = req.body;
   
             console.log(req.body);
-          const validFields = ['title', 'author', 'isbn', 'publication_date', 'Category','price','Store','is_available','quantity','description']; // Add all valid fields
+          const validFields = ['title', 'author', 'isbn', 'publication_date', 'Category','price','Store','is_available','description']; // Add all valid fields
 
          const invalidFields = Object.keys(req.body).filter(field => !validFields.includes(field));
 
@@ -84,9 +85,10 @@ app.post('/upsert', async (req, res) => {
          if (!publication_date) missingFields.push('publication_date');
          if (!author) missingFields.push('author');
          if (!Store) missingFields.push('Store');
-          if (!quantity) missingFields.push('quantity');
+          //if (!quantity) missingFields.push('quantity');
          if (!Category) missingFields.push('Category');
          if (!price) missingFields.push('price');
+         if (!description) missingFields.push('description');
 
          if (missingFields.length > 0) {
          console.error('Missing fields:', missingFields);
@@ -175,6 +177,8 @@ app.post('/upsert', async (req, res) => {
 //       res.status(500).json({ message: 'Internal Server Error' });
 //     }
 //   });
-  app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-  });
+  // app.listen(port, () => {
+  //   console.log(`Server is running on port ${port}`);
+  // });
+
+  module.exports = router;

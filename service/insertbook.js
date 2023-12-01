@@ -4,46 +4,46 @@ const { Pool } = require('pg');
 const cors = require('cors');
 //const bcrypt = require('bcrypt');
 const path = require('path');
-
+const router = express.Router();
 const knex = require('knex');
 const config = require('../knexfile');
 const db = knex(config);
 const app = express();
-const port = 8090;
+//const port = 8090;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Database connection
-const pool = new Pool({
-  host: 'localhost',
-  database: 'final',
-  user: 'postgres',
-  password: '12345',
-  port: 5432, // Default PostgreSQL port
-  //ssl: false, // Set to true for SSL connection, false for local development
-});
- pool.connect((err)=>{
-    if(err){
-        console.log(err);
-    }
-    else{
-        console.log("database connected");
-    }
- })
+// const pool = new Pool({
+//   host: 'localhost',
+//   database: 'final',
+//   user: 'postgres',
+//   password: '12345',
+//   port: 5432, // Default PostgreSQL port
+//   //ssl: false, // Set to true for SSL connection, false for local development
+// });
+//  pool.connect((err)=>{
+//     if(err){
+//         console.log(err);
+//     }
+//     else{
+//         console.log("database connected");
+//     }
+//  })
 
 
  // Adjust the path based on your project structure
 
 
 
-const publicPath = path.join(__dirname, '..', 'public');
+// const publicPath = path.join(__dirname, '..', 'public');
 
-app.use(express.static(publicPath));
-app.get('/', (req, res) => {
-    res.sendFile('addbook.html', { root: publicPath });
-   });
+// app.use(express.static(publicPath));
+// app.get('/', (req, res) => {
+//     res.sendFile('addbook.html', { root: publicPath });
+//    });
 
 // Configuration for the database connection
 
@@ -111,7 +111,7 @@ function isValidName(name) {
     return !isNaN(date) && date.toISOString().split('T')[0] === date.toISOString().split('T')[0];
   }
 // Endpoint to handle POST requests to insert a book
-app.post('/addbook', async (req, res) => {
+router.post('/', async (req, res) => {
     try {
       const { title, isbn, publication_date, author, Store, description, quantity, Category, price, is_available } = req.body;
   
@@ -204,8 +204,8 @@ if (invalidFields.length > 0) {
     }
   });
   
-
+module.exports = router;
 // Start the Express.js server
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
-});
+// app.listen(port, () => {
+//   console.log(`Server is running on http://localhost:${port}`);
+// });

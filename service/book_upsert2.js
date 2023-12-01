@@ -9,7 +9,7 @@ const path = require('path');
 const { validateBookData } = require('../routes/bookRouter');
 //const bookValidator = require('../validators/bookValidators');
 const app = express();
-const port = process.env.PORT || 8090;
+//const port = process.env.PORT || 8090;
 
 
 app.use(bodyParser.json());
@@ -156,7 +156,7 @@ app.post('/upsertBook', validateBookData, async (req, res) => {
       res.status(500).json({ error: 'error updating book' });
     }
   });
-  app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-  });
+  // app.listen(port, () => {
+  //   console.log(`Server is running on http://localhost:${port}`);
+  // });
   

@@ -6,7 +6,7 @@ const knex = require('knex');
 const config = require('../knexfile');
 const db = knex(config);
 const app = express();
-const port = 8090;
+//const port = 8090;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -133,6 +133,6 @@ app.post('/sold', async (req, res) => {
   // }
 
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+// app.listen(port, () => {
+//   console.log(`Server is running on port ${port}`);
+// });
