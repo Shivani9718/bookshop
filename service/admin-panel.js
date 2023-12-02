@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-
+const authorize = require('../middleware/authorize');
 const knex = require('knex');
 const config = require('../knexfile'); // Adjust the path based on your project structure
 const app = express();
@@ -9,9 +9,12 @@ const jwt = require('jsonwebtoken');
  const bcrypt = require('bcrypt');
  const path = require('path');
  const router = express.Router();
+ const verifyToken = require('../middleware/verifytoken');
+ const verifyAdminToken = require('../middleware/authorize');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+require('dotenv').config();
+const secretKey = process.env.secretKey ;
 
 
 //const path = require('path');
@@ -20,6 +23,7 @@ const bookValidator = require('../validators/bookValidators');
 const PORT = process.env.PORT || 8090;
 const { validateBookData } = require('../routes/bookRouter');
 
+
 app.use(bodyParser.json());
 app.use(express.json());
 
@@ -27,7 +31,7 @@ app.use(express.json());
 
 
 
-router.get('/admin-panel/getALLbooks', async (req, res) => {
+router.get('/admin-panel/getALLbooks',verifyToken,async (req, res) => {
     try {
       const books = await db.select('*').from('books');
       res.json(books);
@@ -53,7 +57,7 @@ router.get('/admin-panel/getALLbooks', async (req, res) => {
 //       res.status(500).send('Internal Server Error');
 //     }
 //   });
-router.delete('/admin-panel/DELETEbooks/:bookId', async (req, res) => {
+router.delete('/admin-panel/DELETEbooks/:bookId', verifyAdminToken,async (req, res) => {
     const bookId = req.params.bookId.trim();
   
     try {
@@ -93,7 +97,7 @@ router.delete('/admin-panel/DELETEbooks/:bookId', async (req, res) => {
   
 //   // Fetch books by category
 //  // Fetch all book categories       
-router.get('/admin-panel/categories', async (req, res) => {
+router.get('/admin-panel/categories',verifyToken, async (req, res) => {
     try {
         const categories = await db.distinct('Category').from('books');
         
@@ -108,7 +112,7 @@ router.get('/admin-panel/categories', async (req, res) => {
     }
 });
 
-router.get('/admin-panel/GETbyCATEGORIES/:Category', async (req, res) => {
+  router.get('/admin-panel/GETbyCATEGORIES/:Category',verifyToken, async (req, res) => {
   console.log("here")
   const CategorySearchByUser = req.params.Category.trim();
   console.log("Category  : ", CategorySearchByUser)
@@ -130,7 +134,7 @@ router.get('/admin-panel/GETbyCATEGORIES/:Category', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-router.put('/update/:id', validateBookData, async (req, res) => {
+router.put('/update/:id',verifyAdminToken,validateBookData, async (req, res) => {
   const bookId = req.params.id.trim();
    
   if (bookId === '') {
@@ -180,7 +184,7 @@ router.put('/update/:id', validateBookData, async (req, res) => {
     res.status(200).json({ message: 'Book updated successfully', updatedBook });
   } catch (error) {
     console.error('Error updating book:', error);
-    res.status(500).json({ error: 'error updating book' });
+    res.status(400).json({ error: 'error updating book' });
   }
 });
 

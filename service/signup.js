@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-
+const secretKey = process.env.secretKey ;
 const knex = require('knex');
 const config = require('../knexfile'); // Adjust the path based on your project structure
 const app = express();
@@ -11,7 +11,7 @@ const jwt = require('jsonwebtoken');
  const router = express.Router();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+require('dotenv').config();
 // // Database connection
 // const pool = new Pool({
 //   host: 'localhost',
@@ -122,9 +122,9 @@ function validateGmail(email) {
     return res.status(400).json({ error: 'Invalid email' });
   }
   // secret key
-  const secretKey = 'the_secret_key_is_secret_key_only';
+  const secretKey = 'the';
   // Generate a token with a secret key
-  const token = jwt.sign(user, secretKey, { expiresIn: '4h' }); // Set an expiration time if needed
+  const token = jwt.sign(user, secretKey); // Set an expiration time if needed
   // Respond with the token or store it for future use
   
 
@@ -136,7 +136,7 @@ function validateGmail(email) {
 // Print or use the generated token
  console.log('Generated Token:', token);
 
-  res.json({ token ,user,message:"registered successful"});
+  //res.json({ token ,user,message:"registered successful"});
     
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -147,9 +147,11 @@ function validateGmail(email) {
       email,
       username,
       password: hashedPassword,
-    });
+    })
+
     //return res.redirect('/login');
-    res.status(200).send('User registered successfully');
+    res.json({ message:"User registered successfully",token,user})
+    //res.status(200).send('User registered successfully');
   } catch (error) {
     console.error(error);
     res.status(500).send('Error registering user');
