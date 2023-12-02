@@ -10,7 +10,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 const loginRoutes = require('./service/login');
-
+const queryRoutes = require('./service/query');
 const signupRoutes = require('./service/signup');
 const adminRoutes = require('./service/admin-panel');
 const insertbook= require('./service/insertbook');
@@ -33,7 +33,7 @@ app.use('/signup', signupRoutes);
 app.use('/admin', adminRoutes);
 app.use('/addbook', insertbook);
 app.use('/upsert', upsertBook);
-
+app.use('/books', queryRoutes);
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
   });
