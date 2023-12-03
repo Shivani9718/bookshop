@@ -1,34 +1,18 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const authorize = require('../middleware/authorize');
 const knex = require('knex');
-const config = require('../knexfile'); // Adjust the path based on your project structure
+const config = require('../knexfile'); 
 const app = express();
 const db = knex(config);
-const jwt = require('jsonwebtoken');
- const bcrypt = require('bcrypt');
- const path = require('path');
- const router = express.Router();
- const verifyToken = require('../middleware/verifytoken');
- const verifyAdminToken = require('../middleware/authorize');
+const router = express.Router();
+const verifyToken = require('../middleware/verifytoken');
+const verifyAdminToken = require('../middleware/authorize');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 require('dotenv').config();
-const secretKey = process.env.secretKey ;
-
-
-//const path = require('path');
-const bookValidator = require('../validators/bookValidators');
-//const app = express();
-const PORT = process.env.PORT || 8090;
 const { validateBookData } = require('../routes/bookRouter');
-
-
 app.use(bodyParser.json());
 app.use(express.json());
-
-
-
 
 
 router.get('/admin-panel/getALLbooks',verifyToken,async (req, res) => {
@@ -41,34 +25,25 @@ router.get('/admin-panel/getALLbooks',verifyToken,async (req, res) => {
     }
   });
   
-  // Delete a book by ID
-//   app.delete('/admin-panel/books/:bookId', async (req, res) => {
-//     const bookId = req.params.bookId;
-//     console.log('Book ID:', bookId);
-//     try {
-//       const deletedCount = await db('books').where('id', bookId).del();
-//       if (deletedCount > 0) {
-//         res.status(200).send('Book deleted successfully');
-//       } else {
-//         res.status(404).send('Book not found');
-//       }
-//     } catch (error) {
-//       console.error('Error deleting book:', error);
-//       res.status(500).send('Internal Server Error');
-//     }
-//   });
+ 
+
+
 router.delete('/admin-panel/DELETEbooks/:bookId', verifyAdminToken,async (req, res) => {
     const bookId = req.params.bookId.trim();
+    const validationErrors =[];
   
     try {
       if (bookId === '') {
-        //validationErrors.push('Book ID cannot be empty');
-        return res.status(400).json({ error: "Book ID cannot be empty" });
+        validationErrors.push('Book ID cannot be empty');
+        //return res.status(400).json({ error: "Book ID cannot be empty" });
       }
       
       if (isNaN(bookId)) {
-        //validationErrors.push('Book ID invalid format');
-        return res.status(400).json({ error: "Book ID invalid format" });
+        validationErrors.push('Book ID invalid format');
+        //return res.status(400).json({ error: "Book ID invalid format" });
+      }
+      if (validationErrors.length > 0) {
+        return res.status(400).json({ validationErrors });
       }
     
       await db.transaction(async (trx) => {
@@ -96,7 +71,10 @@ router.delete('/admin-panel/DELETEbooks/:bookId', verifyAdminToken,async (req, r
   });
   
 //   // Fetch books by category
-//  // Fetch all book categories       
+//  // Fetch all book categories    
+
+
+
 router.get('/admin-panel/categories',verifyToken, async (req, res) => {
     try {
         const categories = await db.distinct('Category').from('books');
@@ -111,6 +89,9 @@ router.get('/admin-panel/categories',verifyToken, async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
+
+
 
   router.get('/admin-panel/GETbyCATEGORIES/:Category',verifyToken, async (req, res) => {
   console.log("here")
@@ -134,45 +115,56 @@ router.get('/admin-panel/categories',verifyToken, async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+
+
+
 router.put('/update/:id',verifyAdminToken,validateBookData, async (req, res) => {
   const bookId = req.params.id.trim();
+  try {
+  const validationErrors =[];
    
+
+
+  const existingBook = await db('books').where('id', bookId).first();
+
+    if (!existingBook) {
+      //validationErrors.push('Book not found');
+      return res.status(404).json({ error: 'Book not found' });
+    } 
   if (bookId === '') {
-    //validationErrors.push('Book ID cannot be empty');
-    return res.status(400).json({ error: "Book ID cannot be empty" });
+    validationErrors.push('Book ID cannot be empty');
+    //return res.status(400).json({ error: "Book ID cannot be empty" });
   }
   
   if (isNaN(bookId)) {
-    //validationErrors.push('Book ID invalid format');
-    return res.status(400).json({ error: "Book ID invalid format" });
+    validationErrors.push('Book ID invalid format');
+    //return res.status(400).json({ error: "Book ID invalid format" });
   }
 
-  try {
+
     
     if (!req.body || Object.keys(req.body).length === 0) {
       return res.status(400).json({ error: 'Empty request body' });
     }
-    const validFields = ['title', 'author', 'isbn', 'publication_date', 'Category', 'price', 'Store', 'is_available', 'quantity', 'descrption'];
+    const validFields = ['title', 'author','isbn', 'publication_date', 'Category', 'price', 'Store', 'is_available', 'quantity', 'descrption'];
     const invalidFields = Object.keys(req.body).filter(field => !validFields.includes(field));
-
+    
     if (invalidFields.length > 0) {
-      return res.status(400).json({ error: `Invalid fields: ${invalidFields.join(', ')}` });
+      //validationErrors.push(invalidFields);
+      return res.status(400).json({ message : `Invalid fields :[${invalidFields.join(', ')}]` });
     }
+    
     const updatedFields = req.body;
     const isbn = updatedFields.isbn;
     if (isbn) {
       const existingIsbnBook = await db('books').where('isbn', isbn).first();
       if (existingIsbnBook) {
-        return res.status(400).json({ error: 'ISBN already exists' });
+        validationErrors.push('ISBN already exists');
+       
       }
     }
-    // Check if the book with the specified ID exists
-    const existingBook = await db('books').where('id', bookId).first();
-
-    if (!existingBook) {
-      return res.
-      status(404).json({ error: 'Book not found' });
-    }
+    
+    
     
     // Update the book with the new fields
     await db('books').where('id', bookId).update(req.body);
@@ -184,7 +176,8 @@ router.put('/update/:id',verifyAdminToken,validateBookData, async (req, res) => 
     res.status(200).json({ message: 'Book updated successfully', updatedBook });
   } catch (error) {
     console.error('Error updating book:', error);
-    res.status(400).json({ error: 'error updating book' });
+    //validationErrors.push('error updating book');
+  res.status(400).json({ message : 'error updating book' });
   }
 });
 
