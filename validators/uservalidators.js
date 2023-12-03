@@ -42,7 +42,7 @@ async function userValidate(requestBody){
     const validationErrors = [];
     
     if (!isPasswordComplex(requestBody.password)) {
-      validationErrors.push('Password requirements not met' );
+      validationErrors.push('Password requirements not met.Password must be greater than or equal to 8 character and must conatin  a uppercase , a lowercase and a special character' );
     }
   
     if (!isValidName(requestBody.first_name) ) {
@@ -57,16 +57,16 @@ async function userValidate(requestBody){
     }
   
     if (!validateGmail(requestBody.email)) {
-      validationErrors.push( 'Invalid email' );
+      validationErrors.push( 'Invalid email.email must include @gmail.com' );
     }
 
     const existingUser= await db('users').where('username', requestBody.username).first();
     if (existingUser) {
-      return res.status(400).json({ error: "Username already Exist" });
+      validationErrors.push( "Username already Exist" );
     }
     const existingemail= await db('users').where('email', requestBody.email).first();
     if (existingemail) {
-      return res.status(400).json({ error: "email already exist" });
+      validationErrors.push("email already exist" );
     }
 
 

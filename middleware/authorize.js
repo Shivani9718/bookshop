@@ -8,6 +8,7 @@ require('dotenv').config();
 require('dotenv').config();
 const secretKey = process.env.secretKey;
 //const secretKey = 'the';
+console.log(secretKey);
 
 
 async function verifyAdminToken(req, res, next) {

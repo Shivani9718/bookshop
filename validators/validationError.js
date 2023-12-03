@@ -101,10 +101,7 @@ function isValidBookTitle(title) {
   
 
 
-//   function handleValidationErrors(res, errors) {
-//     const errorMessage = errors.join(', ');
-//     return res.status(400).json({ "Validation errors": [errorMessage] });
-//   }
+
   
   async function validateBook(requestBody) {
    
@@ -118,16 +115,16 @@ function isValidBookTitle(title) {
   
       if (!requestBody || Object.keys(requestBody).length === 0) {
         validationErrors.push('Empty request body. Provide relevant information.')
-        //return res.status(400).json({ error: 'Empty request body. Provide relevant information.' });
+        
       }
 
      if(requestBody.id){
-      if (req.body.id != undefined) {
+      if (requestBody.id != undefined) {
         const existingBook = await db('books').select('id').where('id', requestBody.id).first();
   
         if (!existingBook) {
             validationErrors.push("Book does not exist.");
-          //return res.status(404).json('Book does not exist.');
+          
         }
     }
   }
@@ -195,7 +192,6 @@ function isValidBookTitle(title) {
   
     
   
-    //   }
   
       
   

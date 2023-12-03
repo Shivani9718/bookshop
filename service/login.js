@@ -1,18 +1,13 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-// const { Pool } = require('pg');
-// const cors = require('cors');
 const knex = require('knex');
-const config = require('../knexfile'); // Adjust the path based on your project structure
-const app = express();
+const config = require('../knexfile'); 
 const db = knex(config);
 const jwt = require('jsonwebtoken');
- const bcrypt = require('bcrypt');
- const path = require('path');
- const router = express.Router();
- require('dotenv').config();
- const secretKey = process.env.secretKey;
- //console.log(secretKey);
+const bcrypt = require('bcrypt');
+const router = express.Router();
+require('dotenv').config();
+const secretKey = process.env.secretKey;
+ 
 
 
 
@@ -28,7 +23,7 @@ const jwt = require('jsonwebtoken');
   const userEnteredEmail = req.body.email ? req.body.email.toLowerCase() : null;
 
 
-const user = await db('users')
+ const user = await db('users')
   .where(function () {
     this.whereRaw('LOWER(username) ILIKE ?', [`%${userEnteredUsername}%`])
       .orWhereRaw('LOWER(email) ILIKE ?', [`%${userEnteredEmail }%`]);
@@ -49,28 +44,23 @@ const user = await db('users')
     return res.status(400).json({ error: `Missing required fields: ${missingFields.join(', ')}` });
   }
   
+
   const passwordMatch = await bcrypt.compare(password, user.password);
   console.log('Entered Password:', password);
   console.log('Hashed Password:', user.password);
   console.log('Password Match:', passwordMatch);
 
+
+
   if (passwordMatch) {
+  const token = jwt.sign(user, secretKey); // Set an expiration time if needed
+  console.log('Generated Token:', token);
+  console.log(secretKey);
+ res.json({ token ,message:"login succssful"});
+  } 
   
- 
-    const token = jwt.sign(user, secretKey); // Set an expiration time if needed
   
-    console.log('Generated Token:', token);
-   
-        console.log(secretKey);
-
-
-
-
-
-
-
-    res.json({ token ,message:"login succssful"});
-  } else {
+  else {
     return res.status(401).json({ error: 'Invalid username or password' });
   }
    

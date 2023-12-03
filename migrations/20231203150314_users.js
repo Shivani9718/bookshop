@@ -4,7 +4,7 @@ exports.up = function (knex) {
         table.increments('store_id').primary();  // Combine these two statements
         table.string('store').notNullable().unique();
         table.string('address').notNullable();
-        table.string('city').notNullable();
+        table.string('city');
         table.string('state').notNullable();
         table.string('postal_code').notNullable();
         table.string('location');
@@ -21,10 +21,12 @@ exports.up = function (knex) {
           .onDelete('CASCADE')
           .onUpdate('CASCADE');
         table.text('description');
-        table.integer('quantity').notNullable();
+        table.integer('quantity');
         table.string('Category').notNullable();
+        
         table.decimal('price', 10, 2);
         table.boolean('is_available').defaultTo(true);
+        table.timestamps(true, true);
       })
       .createTable('users', function (table) {
         table.increments('id').primary();

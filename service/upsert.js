@@ -7,7 +7,7 @@ const db = knex(config);
 const router = express.Router();
 const verifyAdminToken = require('../middleware/authorize');
 const { validateBookData } = require('../routes/bookRouter');
-const checkMissingFields = require('../validators/checkMissingFields');
+const {checkMissingFields} = require('../validators/checkMissingFields');
 const validateBook = require('../validators/validationError');
 const app = express();
 app.use(express.json()); // Parse JSON in the request body
@@ -16,27 +16,22 @@ app.use(express.urlencoded({ extended: true }));
 
 
 
+
+
+
+
+// upsert book
+
+
 router.post('/', verifyAdminToken, async (req, res) => {
   try {
 
      
     
     let bookDataFromBody = req.body;
+    if (bookDataFromBody.id != undefined) {
 
-    //  if (!req.body || Object.keys(req.body).length === 0) {
-    //   return res.status(400).json({ error: 'Empty request body. Provide relevant information.' });
-    //  }
-
-    
-    
-
-     if (bookDataFromBody.id != undefined) {
-
-      if (Object.keys(req.body).length === 1 && req.body.hasOwnProperty('id')) {
-        return res.status(200).json({ error: 'Update data does not contain any values to update.' });
-      }
-      
-      const validFields = ['id', 'title', 'author', 'isbn', 'publication_date', 'Category', 'price', 'Store', 'is_available', 'quantity', 'description'];
+    const validFields = ['id', 'title', 'author', 'isbn', 'publication_date', 'Category', 'price', 'Store', 'is_available', 'quantity', 'description'];
       const invalidFields = Object.keys(req.body).filter(field => !validFields.includes(field));
   
       if (invalidFields.length > 0) {
@@ -75,16 +70,16 @@ router.post('/', verifyAdminToken, async (req, res) => {
 
       const missingFields = checkMissingFields(req.body);
 
-if (missingFields.length > 0) {
+ if (missingFields.length > 0) {
   const errorMessage =  missingFields.join(', ') ;
   return res.status(400).json({ "Missing Fields": [errorMessage] });
-}
-const validationErrors = await validateBook(req.body);
+ }
+ const validationErrors = await validateBook(req.body);
 
-if (validationErrors.length > 0) {
+ if (validationErrors.length > 0) {
   const errorMessage = validationErrors.join(', ');
   return res.status(400).json({ "Validation errors": [errorMessage] });
-}
+ }
       
 
      

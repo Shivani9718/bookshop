@@ -1,30 +1,20 @@
  const express = require('express');
  const bodyParser = require('body-parser');
-
  const knex = require('knex');
- const config = require('../knexfile'); // Adjust the path based on your project structure
+ const config = require('../knexfile'); 
  const app = express();
  const db = knex(config);
  const jwt = require('jsonwebtoken');
  const bcrypt = require('bcrypt');
  const path = require('path');
  const router = express.Router();
-
  const verifyToken = require('../middleware/verifytoken');
- ///const verifyAdminToken = require('../middleware/authorize');
  app.use(express.json());
  app.use(express.urlencoded({ extended: true }));
  require('dotenv').config();
  const secretKey = process.env.secretKey ;
-
-
-
- //const PORT = process.env.PORT || 2332;
-
-
-
-app.use(bodyParser.json());
-app.use(express.json());
+ app.use(bodyParser.json());
+ app.use(express.json());
 
 
 
@@ -113,6 +103,8 @@ router.get('/', verifyToken,async (req, res) => {
 
 
 module.exports = router;
+
+
 // app.listen(PORT, () => {
 //   console.log(`Server is running on http://localhost:${PORT}`);
 // });
