@@ -14,7 +14,7 @@ const { validateBookData } = require('../routes/bookRouter');
 app.use(bodyParser.json());
 app.use(express.json());
 
-
+const validateBook = require('../validators/validationError');
 router.get('/admin-panel/getALLbooks',verifyToken,async (req, res) => {
     try {
       const books = await db.select('*').from('books');
@@ -121,55 +121,39 @@ router.get('/admin-panel/categories',verifyToken, async (req, res) => {
 router.put('/update/:id',verifyAdminToken,validateBookData, async (req, res) => {
   const bookId = req.params.id.trim();
   try {
-  const validationErrors =[];
    
 
 
-  const existingBook = await db('books').where('id', bookId).first();
-
-    if (!existingBook) {
-      //validationErrors.push('Book not found');
-      return res.status(404).json({ error: 'Book not found' });
-    } 
-  if (bookId === '') {
-    validationErrors.push('Book ID cannot be empty');
-    //return res.status(400).json({ error: "Book ID cannot be empty" });
-  }
-  
-  if (isNaN(bookId)) {
-    validationErrors.push('Book ID invalid format');
-    //return res.status(400).json({ error: "Book ID invalid format" });
-  }
-
-
-    
-    if (!req.body || Object.keys(req.body).length === 0) {
+      if (!req.body || Object.keys(req.body).length === 0) {
       return res.status(400).json({ error: 'Empty request body' });
-    }
-    const validFields = ['title', 'author','isbn', 'publication_date', 'Category', 'price', 'Store', 'is_available', 'quantity', 'descrption'];
-    const invalidFields = Object.keys(req.body).filter(field => !validFields.includes(field));
+    } 
     
-    if (invalidFields.length > 0) {
-      //validationErrors.push(invalidFields);
-      return res.status(400).json({ message : `Invalid fields :[${invalidFields.join(', ')}]` });
-    }
-    
-    const updatedFields = req.body;
-    const isbn = updatedFields.isbn;
-    if (isbn) {
-      const existingIsbnBook = await db('books').where('isbn', isbn).first();
-      if (existingIsbnBook) {
-        validationErrors.push('ISBN already exists');
-       
-      }
-    }
-    
-    
-    
-    // Update the book with the new fields
-    await db('books').where('id', bookId).update(req.body);
 
-    // Retrieve the updated book
+    //  if (!req.body || Object.keys(req.body).length === 0) {
+    //   return res.status(400).json({ error: 'Empty request body. Provide relevant information.' });
+    //  }
+
+    const validFields = ['id', 'title', 'author', 'isbn', 'publication_date', 'Category', 'price', 'Store', 'is_available', 'quantity', 'description'];
+    const invalidFields = Object.keys(req.body).filter(field => !validFields.includes(field));
+    if (invalidFields.length > 0) {
+      return res.status(400).json({ message: `Invalid fields: [${invalidFields.join(', ')}]` });
+    }
+
+   
+
+      
+    const validationErrors = await validateBook(req.body);
+
+    if (validationErrors.length > 0) {
+      const errorMessage =  validationErrors.join();
+      return res.status(400).json({ "Validation errors": [errorMessage] });
+    }
+     
+  
+      
+      
+    await db('books').where('id', bookId).update(req.body);
+      
     const updatedBook = await db('books').where('id', bookId).first();
 
     // Send the updated book in the response
@@ -180,6 +164,56 @@ router.put('/update/:id',verifyAdminToken,validateBookData, async (req, res) => 
   res.status(400).json({ message : 'error updating book' });
   }
 });
+  // const validationErrors =[];
+   
+
+
+  // const existingBook = await db('books').where('id', bookId).first();
+
+  //   if (!existingBook) {
+  //     //validationErrors.push('Book not found');
+  //     return res.status(404).json({ error: 'Book not found' });
+  //   } 
+  // if (bookId === '') {
+  //   validationErrors.push('Book ID cannot be empty');
+  //   //return res.status(400).json({ error: "Book ID cannot be empty" });
+  // }
+  
+  // if (isNaN(bookId)) {
+  //   validationErrors.push('Book ID invalid format');
+  //   //return res.status(400).json({ error: "Book ID invalid format" });
+  // }
+
+
+    
+    // if (!req.body || Object.keys(req.body).length === 0) {
+    //   return res.status(400).json({ error: 'Empty request body' });
+    // }
+    // const validFields = ['title', 'author','isbn', 'publication_date', 'Category', 'price', 'Store', 'is_available', 'quantity', 'descrption'];
+    // const invalidFields = Object.keys(req.body).filter(field => !validFields.includes(field));
+    
+    // if (invalidFields.length > 0) {
+    //   //validationErrors.push(invalidFields);
+    //   return res.status(400).json({ message : `Invalid fields :[${invalidFields.join(', ')}]` });
+    // }
+    
+    //const updatedFields = req.body;
+    // const isbn = updatedFields.isbn;
+    // if (isbn) {
+    //   const existingIsbnBook = await db('books').where('isbn', isbn).first();
+    //   if (existingIsbnBook) {
+    //     validationErrors.push('ISBN already exists');
+       
+    //   }
+    // }
+    
+    
+    
+    // Update the book with the new fields
+    
+
+    // Retrieve the updated book
+    
 
 
    

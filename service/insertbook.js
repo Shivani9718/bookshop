@@ -15,37 +15,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Database connection
-// const pool = new Pool({
-//   host: 'localhost',
-//   database: 'final',
-//   user: 'postgres',
-//   password: '12345',
-//   port: 5432, // Default PostgreSQL port
-//   //ssl: false, // Set to true for SSL connection, false for local development
-// });
-//  pool.connect((err)=>{
-//     if(err){
-//         console.log(err);
-//     }
-//     else{
-//         console.log("database connected");
-//     }
-//  })
 
 
- // Adjust the path based on your project structure
-
-
-
-// const publicPath = path.join(__dirname, '..', 'public');
-
-// app.use(express.static(publicPath));
-// app.get('/', (req, res) => {
-//     res.sendFile('addbook.html', { root: publicPath });
-//    });
-
-// Configuration for the database connection
 
 
 
@@ -117,7 +88,7 @@ router.post('/', async (req, res) => {
   
       console.log(req.body);
       const validFields = ['title', 'author', 'isbn', 'publication_date', 'Category','price','Store','is_available','description']; // Add all valid fields
-
+       
       const invalidFields = Object.keys(req.body).filter(field => !validFields.includes(field));
 
 if (invalidFields.length > 0) {
@@ -126,15 +97,18 @@ if (invalidFields.length > 0) {
       if (!req.body || Object.keys(req.body).length === 0) {
         return res.status(400).json({ error: 'Empty request body' });
       }
-      const existingisbn = await db('books').where('isbn', isbn).first();
-    if (existingisbn) {
-      return res.status(400).json({ error: 'isbn no.  already exist' });
-    }
+
+
+      // const existingISBN = await db('books').where('isbn', isbn).first();
+      // if (existingISBN) {
+      //   validationErrors.push('ISBN already exists');
+      // }
+     
     const missingFields = [];
 
      if (!title) missingFields.push('title');
      if (!isbn) missingFields.push('isbn');
-     if (!publication_date) missingFields.push('publication_date');
+     //if (!publication_date) missingFields.push('publication_date');
      if (!author) missingFields.push('author');
      if (!Store) missingFields.push('Store');
      //if (!quantity) missingFields.push('quantity');
@@ -173,8 +147,8 @@ if (invalidFields.length > 0) {
       if (!storeExists) {
         return res.status(400).json({ error: 'Invalid Store. Store does not exist' });
       }
-     
-  
+      
+    
       if (!isValidPublicationDate(publication_date)) {
         return res.status(400).json({ error: 'Invalid Date' });
       }
