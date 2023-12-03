@@ -10,8 +10,9 @@ const jwt = require('jsonwebtoken');
  const bcrypt = require('bcrypt');
  const path = require('path');
  const router = express.Router();
- //r//equire('dotenv').config();
- //const secretKey = process.env.secretKey ;
+ require('dotenv').config();
+ const secretKey = process.env.secretKey;
+ //console.log(secretKey);
 
 
 
@@ -22,13 +23,7 @@ const jwt = require('jsonwebtoken');
   if (!req.body || Object.keys(req.body).length === 0) {
     return res.status(400).json({ error: 'Empty request body' });
   }
-  // const userEnteredUsername = req.body.username.toLowerCase(); 
-  // const userEnteredEmail = req.body.email.toLowerCase();
-  // //const user = await db('users').whereRaw('LOWER("username") = ?', [userEnteredUsername]);
-  // const user = await db('users')
-  //   .whereRaw('LOWER(username) ILIKE ? OR LOWER(email) ILIKE ?', [`%${userEnteredUsername }%`, `%${userEnteredEmail}%`])
-  //   .first();
-  //const user = await db('users').where('username', username).first();
+ 
   const userEnteredUsername = req.body.username?req.body.username.toLowerCase(): null;
   const userEnteredEmail = req.body.email ? req.body.email.toLowerCase() : null;
 
@@ -60,7 +55,7 @@ const user = await db('users')
   console.log('Password Match:', passwordMatch);
 
   if (passwordMatch) {
-    const secretKey = 'the';
+  
  
     const token = jwt.sign(user, secretKey); // Set an expiration time if needed
   

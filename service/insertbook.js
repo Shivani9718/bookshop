@@ -7,9 +7,10 @@ const path = require('path');
 const router = express.Router();
 const knex = require('knex');
 const config = require('../knexfile');
-const db = knex(config);
 const app = express();
-//const port = 8090;
+const db = knex(config);
+
+const verifyToken = require('../middleware/verifytoken');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -82,7 +83,7 @@ function isValidName(name) {
     return !isNaN(date) && date.toISOString().split('T')[0] === date.toISOString().split('T')[0];
   }
 // Endpoint to handle POST requests to insert a book
-router.post('/', async (req, res) => {
+router.post('/', verifyToken ,async (req, res) => {
     try {
       const { title, isbn, publication_date, author, Store, description, quantity, Category, price, is_available } = req.body;
   

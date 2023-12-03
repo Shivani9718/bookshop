@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const secretKey = process.env.secretKey ;
+
 const knex = require('knex');
 const config = require('../knexfile'); // Adjust the path based on your project structure
 const app = express();
@@ -13,8 +13,9 @@ app.use(express.json());
 const  userValidate = require('../validators/uservalidators');
 const { checkUserMissingField } = require('../validators/checkMissingFields');
 app.use(express.urlencoded({ extended: true }));
-require('dotenv').config();
 
+require('dotenv').config();
+ const secretKey = process.env.secretKey;
 
 
 
@@ -140,7 +141,7 @@ require('dotenv').config();
   };
 
 
-  const secretKey = 'the';
+  //const secretKey = 'the';
   // Generate a token with a secret key
   const token = jwt.sign(user, secretKey); // Set an expiration time if needed
   // Respond with the token or store it for future use

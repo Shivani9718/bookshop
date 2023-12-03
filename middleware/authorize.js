@@ -5,8 +5,9 @@ const config = require('../knexfile'); // Adjust the path based on your project 
 
 const db = knex(config);
 require('dotenv').config();
-
-const secretKey = 'the';
+require('dotenv').config();
+const secretKey = process.env.secretKey;
+//const secretKey = 'the';
 
 
 async function verifyAdminToken(req, res, next) {
