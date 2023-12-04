@@ -1,13 +1,13 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
-const path = require('path');
 const router = express.Router();
 const PORT = 8090;
 const app = express();
 const verifyToken = require('./middleware/verifytoken');
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(express.json());
+
+
+app.use(express.urlencoded({ extended: true }));
 
 const loginRoutes = require('./service/login');
 const queryRoutes = require('./service/query');

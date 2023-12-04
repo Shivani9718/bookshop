@@ -6,7 +6,7 @@ const knex = require('knex');
 const config = require('../knexfile');
 const db = knex(config);
 const app = express();
-//const port = 8090;
+const port = 3333;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -34,7 +34,7 @@ const publicPath = path.join(__dirname, '..', 'public');
 app.use(express.static(publicPath));
 
 app.post('/sold', async (req, res) => {
-    const { user_id, book_id, store_id } = req.body;
+    const { user_id , book_id, store_id } = req.body;
   
     try {
       await db.transaction(async (trx) => {
@@ -51,7 +51,7 @@ app.post('/sold', async (req, res) => {
           user_id: user_id,
           book_purchased: [bookInfo.id],
           additional_details: JSON.stringify({
-            purchased_date: new Date(),
+            //purchased_date: new Date(),
             book_id: bookInfo.id,
             store_name: storeInfo.store,
             title: bookInfo.title,
@@ -62,7 +62,7 @@ app.post('/sold', async (req, res) => {
           book_purchased: trx.raw('array_append(??, ?)', ['book_purchased', bookInfo.id]),
           additional_details: trx.raw('?? || ?', ['additional_details', JSON.stringify([{
             book_id: bookInfo.id,
-            purchased_date: new Date(),
+            //purchased_date: new Date(),
             store_name: storeInfo.store,
             title: bookInfo.title,
             price: bookInfo.price,
@@ -133,6 +133,6 @@ app.post('/sold', async (req, res) => {
   // }
 
 
-// app.listen(port, () => {
-//   console.log(`Server is running on port ${port}`);
-// });
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});

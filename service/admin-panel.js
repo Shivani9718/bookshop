@@ -38,7 +38,7 @@ router.get('/admin-panel/getALLbooks',verifyToken,async (req, res) => {
 
   // delete book
 router.delete('/admin-panel/DELETEbooks/:bookId', verifyAdminToken,async (req, res) => {
-    const bookId = req.params.bookId.trim();
+    const bookId = req.params.bookId;
     const validationErrors =[];
   
     try {

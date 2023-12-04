@@ -1,9 +1,4 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const { Pool } = require('pg');
-const cors = require('cors');
-//const bcrypt = require('bcrypt');
-const path = require('path');
 const router = express.Router();
 const knex = require('knex');
 const config = require('../knexfile');
@@ -14,7 +9,7 @@ const verifyAdminToken = require('../middleware/authorize');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
+
 
 
 
@@ -106,7 +101,7 @@ function isValidName(name) {
 // Endpoint to handle POST requests to insert a book
 router.post('/', verifyAdminToken ,async (req, res) => {
     try {
-      const bookIsbn = req.body.isbn.trim();
+      const bookIsbn = req.body.isbn;
       const { title, isbn, publication_date, author, Store, description, quantity, Category, price, is_available } = req.body;
   
       console.log(req.body);
@@ -121,11 +116,22 @@ if (invalidFields.length > 0) {
         return res.status(400).json({ message: 'Empty request body' });
       }
 
+      const isbnValue = req.body.isbn;
 
-      const existingISBN = await db('books').where('isbn', bookIsbn).first();
-      if (existingISBN) {
-        return res.status(400).json({ message : 'ISBN already exists'});
+      if (!isbnValue) {
+        return res.status(400).json({ error: 'ISBN is missing in the request body' });
       }
+  
+      // Query the "books" table based on the ISBN
+      const existingISBN  = await db('books').where('isbn', isbnValue).first();
+      if (existingISBN) {
+          return res.status(400).json({ message : 'ISBN already exists'});
+        }
+   
+      // const existingISBN = await db('books').where('isbn', bookIsbn).first();
+      // if (existingISBN) {
+      //   return res.status(400).json({ message : 'ISBN already exists'});
+      // }
      
     const missingFields = [];
 
@@ -155,8 +161,8 @@ if (invalidFields.length > 0) {
       }
      
 
-      if (! !isValidName(author)) {
-        return res.status(400).json({ message: 'Invalid Cauthor name' });
+      if (!isValidName(author)) {
+        return res.status(400).json({ message: 'Invalid author name' });
       }
       if (!isValidBookTitle(title) ) {
         return res.status(400).json({ message: 'Invalid book title' });
@@ -172,7 +178,7 @@ if (invalidFields.length > 0) {
       if (!storeExists) {
         return res.status(400).json({message: 'Invalid Store. Store does not exist' });
       }
-      
+     
     
       if (!isValidPublicationDate(publication_date)) {
         return res.status(400).json({message: 'Invalid Date' });
