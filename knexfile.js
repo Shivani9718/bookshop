@@ -1,9 +1,9 @@
 module.exports = {
-  client: 'pg',
+  client: 'postgres',
   connection: {
     host: 'localhost',
     user: 'postgres',
-    password: '12345',
+    password: 'root',
     database: 'final',
   },
   migrations: {
@@ -14,3 +14,4 @@ module.exports = {
     directory: './seeds',
   },
 };
+

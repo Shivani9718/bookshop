@@ -12,22 +12,22 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Database connection
-const pool = new Pool({
-  host: 'localhost',
-  database: 'final',
-  user: 'postgres',
-  password: '12345',
-  port: 5432, // Default PostgreSQL port
-  //ssl: false, // Set to true for SSL connection, false for local development
-});
-pool.connect((err)=>{
-    if(err){
-        console.log(err);
-    }
-    else{
-        console.log("database connected");
-    }
-})
+// const pool = new Pool({
+//   host: 'localhost',
+//   database: 'final',
+//   user: 'postgres',
+//   password: '12345',
+//   port: 5432, // Default PostgreSQL port
+//   //ssl: false, // Set to true for SSL connection, false for local development
+// });
+// pool.connect((err)=>{
+//     if(err){
+//         console.log(err);
+//     }
+//     else{
+//         console.log("database connected");
+//     }
+// })
 
 const knex = require('knex');
 const config = require('../knexfile.js');
@@ -37,69 +37,70 @@ const db = knex(config);
 
 const bookstoreData = [
   {
-    store: 'The Bookshelf Boutique',
-    address: '123 Main St',
+    storeName: 'The Bookshelf Boutique',
+    address: {
+       house :'123 Main St'},
     city: 'Cityville',
     state: 'CA',
-    postal_code: '12345',
-   
-    location: 'Nearby'
+    postalCode: '12345',
+    location: {
+      type: 'Point',
+      coordinates: [-122.408207, 37.783234], // Replace with actual coordinates
+    },
   },
   {
-    store: 'The Reading Retreat',
-    address: '456 Elm St',
+    storeName: 'The Reading Retreat',
+    address: { house :'456 Elm St'},
     city: 'Townsville',
     state: 'NY',
-    postal_code: '67890',
-   
-    location: 'Downtown'
+    postalCode: '67890',
+    location: {
+      type: 'Point',
+      coordinates: [-74.006, 40.7128], // Replace with actual coordinates
+    },
   },
   {
-    store: 'ABC Bookstore',
-    address: '123 Main St',
+    storeName: 'ABC Bookstore',
+    address: { house :'123 Main St'},
     city: 'City1',
     state: 'State1',
-    postal_code: '12345',
-    location: 'Near Park',
+    postalCode: '12345',
+    location: {
+      type: 'Point',
+      coordinates: [-74.006, 40.7128], // Replace with actual coordinates
+    },
   },
   {
-    store: 'XYZ Book Emporium',
-    address: '456 Oak Ave',
+    storeName: 'XYZ Book Emporium',
+    address: { house :'456 Oak Ave'},
     city: 'City2',
     state: 'State2',
-    postal_code: '67890',
-    location: 'Downtown',
+    postalCode: '67890',
+    location: {
+      type: 'Point',
+      coordinates: [-122.4194, 37.7749], // Replace with actual coordinates
+    },
   },
   {
-    store: 'Book Haven',
-    address: '789 Elm Blvd',
+    storeName: 'Book Haven',
+    address:{ house : '789 Elm Blvd'},
     city: 'City3',
     state: 'State3',
-    postal_code: '13579',
-    location: 'Shopping Mall',
-  },
-  {
-    store: 'City Lights Books',
-    address: '101 Pine Ln',
-    city: 'City4',
-    state: 'State4',
-    postal_code: '24680',
-    location: 'City Center',
-  },
-  {
-    store: 'Classic Book Corner',
-    address: '321 Cedar Rd',
-    city: 'City5',
-    state: 'State5',
-    postal_code: '98765',
-    location: 'Historical District',
+    postalCode: '13579',
+    location: {
+      type: 'Point',
+      coordinates: [-122.4194, 37.7749], // Replace with actual coordinates
+    },
   },
   // Add more entries as needed
 ];
 
+// Use the bookstoreData array in your application as needed.
+
+
 //Insert data into the bookstore table
-db('bookstore')
-  .insert(bookstoreData)
+db('Bookstore')
+  .insert(bookstoreData )
   .then(() => {
     console.log('Data inserted into the bookstore table successfully');
     // You might want to close the database connection here if needed

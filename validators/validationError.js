@@ -120,7 +120,7 @@ function isValidBookTitle(title) {
 
      if(requestBody.id){
       if (requestBody.id != undefined) {
-        const existingBook = await db('books').select('id').where('id', requestBody.id).first();
+        const existingBook = await db('Books').select('id').where('id', requestBody.id).first();
   
         if (!existingBook) {
             validationErrors.push("Book does not exist.");
@@ -131,8 +131,8 @@ function isValidBookTitle(title) {
   
         
   
-        if (requestBody.Store) {
-          const storeExists = await db('bookstore').where('store', requestBody.Store).first();
+        if (requestBody.storeID) {
+          const storeExists = await db('Bookstore').where('id', requestBody.storeID).first();
   
           if (!storeExists) {
             validationErrors.push("Invalid Store. Store does not exist");
@@ -157,7 +157,7 @@ function isValidBookTitle(title) {
     
         if (requestBody.isbn) {
           try {
-            const existingIsbnBook = await db('books').where('isbn', requestBody.isbn).first();
+            const existingIsbnBook = await db('Books').where('isbn', requestBody.isbn).first();
             if (existingIsbnBook) {
               validationErrors.push('ISBN already exists');
             } else if (!isValidISBN(requestBody.isbn)) {

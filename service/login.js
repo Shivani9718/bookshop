@@ -19,24 +19,21 @@ const secretKey = process.env.secretKey;
     return res.status(400).json({ error: 'Empty request body' });
   }
  
-  const userEnteredUsername = req.body.username?req.body.username.toLowerCase(): null;
+ 
   const userEnteredEmail = req.body.email ? req.body.email.toLowerCase() : null;
 
 
- const user = await db('users')
-  .where(function () {
-    this.whereRaw('LOWER(username) ILIKE ?', [`%${userEnteredUsername}%`])
-      .orWhereRaw('LOWER(email) ILIKE ?', [`%${userEnteredEmail }%`]);
-  })
+  const user = await db('Users')
+  .whereRaw('LOWER(email) = ?', [userEnteredEmail])
   .first();
 
   if (!user) {
-    return res.status(401).send('Invalid username or password');
+    return res.status(401).send('Invalid email or password');
   }
   
   const missingFields = [];
 
-  if (!username &&  !email) missingFields.push('username or email');
+  if (!email) missingFields.push('email');
   if (!password) missingFields.push('password');
 
   if (missingFields.length > 0) {
@@ -53,7 +50,7 @@ const secretKey = process.env.secretKey;
 
 
   if (passwordMatch) {
-  const token = jwt.sign(user, secretKey); // Set an expiration time if needed
+  const token = jwt.sign(user, secretKey); 
   console.log('Generated Token:', token);
   console.log(secretKey);
  res.json({ token ,message:"login succssful"});
@@ -61,7 +58,7 @@ const secretKey = process.env.secretKey;
   
   
   else {
-    return res.status(401).json({ error: 'Invalid username or password' });
+    return res.status(401).json({ error: 'Invalid email or password' });
   }
    
  });

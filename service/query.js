@@ -4,9 +4,9 @@
  const config = require('../knexfile'); 
  const app = express();
  const db = knex(config);
- const jwt = require('jsonwebtoken');
- const bcrypt = require('bcrypt');
- const path = require('path');
+//  const jwt = require('jsonwebtoken');
+//  const bcrypt = require('bcrypt');
+//  const path = require('path');
  const router = express.Router();
  const verifyToken = require('../middleware/verifytoken');
  app.use(express.json());
@@ -28,8 +28,8 @@ router.get('/', verifyToken,async (req, res) => {
     const booksFilter = {};
 
     if (queryParams.author) {
-        const [operator, value] = queryParams.author.split(':');
-        booksFilter.author = { operator, value  };
+        const [operator, value] = queryParams.author.trim().split(':');
+        booksFilter.author = { operator , value };
       }
 
     if (queryParams.price) {
@@ -41,6 +41,22 @@ router.get('/', verifyToken,async (req, res) => {
       const [operator, value] = queryParams.title.split(':');
       booksFilter.title = { operator, value };
     }
+    // if (queryParams.Category) {
+    //   const [operator, value] = queryParams.Category.split(':');
+    //   booksFilter.Category= { operator, value };
+    // }
+
+
+    if (queryParams.publicationDate) {
+      const [operator, value] = queryParams.publicationDate.split(':');
+      const dateValue = new Date(value);
+     if (dateValue instanceof Date && !isNaN(dateValue)) {
+     booksFilter.publicationDate = { operator, value: dateValue };
+    }
+     }
+      // booksFilter.publicationDate = { operator, value };
+    
+  
 
     if (queryParams.Category) {
       const [operator, value] = queryParams.Category.toLowerCase().split(':');
@@ -48,12 +64,19 @@ router.get('/', verifyToken,async (req, res) => {
     }
 
     // Build the Knex query dynamically
-    const books = await db('books')
+    const books = await db('Books')
       .where((builder) => {
         Object.entries(booksFilter).forEach(([field, filter]) => {
+          if (filter && filter.operator) {
           switch (filter.operator) {
             case 'eq':
-              builder.where(field, 'ilike', `%${filter.value}%`);
+              if (isNaN(filter.value)) {
+                builder.where(field, 'ilike', `%${filter.value}%`);
+              }
+              else{
+                builder.where(field,'=', filter.value);
+              }
+              // builder.where(field, filter.value);
               break;
             case 'cn':
               builder.where(field, 'ilike', `%${filter.value}%`);
@@ -65,13 +88,17 @@ router.get('/', verifyToken,async (req, res) => {
               builder.where(field, '!=', filter.value);
               break;
             case 'lt':
+              if (!isNaN(filter.value)){
               builder.where(field, '<', filter.value);
+              }
               break;
             case 'le':
               builder.where(field, '<=', filter.value);
               break;
             case 'ge':
+              if (!isNaN(filter.value)){
               builder.where(field, '>=', filter.value);
+              }
               break;
             case 'in':
               builder.whereIn(field, filter.value.split(','));
@@ -85,15 +112,17 @@ router.get('/', verifyToken,async (req, res) => {
             default:
               builder.where(field, '=', filter.value);
           }
+        }
+        
         });
       })
-      .select('*');
+      .select('title','price','description','Category','author','publicationDate');
       console.log(books);
 
-    if (books[0] !== undefined) {
-     return res.status(200).json({ "Books Details": books });
+    if (books.length > 0) {
+     return res.status(200).json(books);
     } else {
-     res.status(404).json({ "Fetch Error": "No books Found" });
+     res.status(404).json(" No books Found"  );
     }
   } catch (error) {
     console.log(error);

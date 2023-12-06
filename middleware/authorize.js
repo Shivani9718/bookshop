@@ -7,7 +7,7 @@ const db = knex(config);
 require('dotenv').config();
 require('dotenv').config();
 const secretKey = process.env.secretKey;
-//const secretKey = 'the';
+
 console.log(secretKey);
 
 
@@ -28,16 +28,16 @@ async function verifyAdminToken(req, res, next) {
     const decoded = jwt.verify(token, secretKey);
 
   
-    const usernameToCheck = await db('users').where('username', decoded.username).first();
+    const userToCheck = await db('Users').where('email', decoded.email).first();
 
-    if (!usernameToCheck) {
+    if (!userToCheck) {
       return res.status(401).json({ error: 'User not found' });
     }
 
-    const result = await db('users')
-    .join('admin', 'users.id', 'admin.id')
-    .select('users.username', 'admin.role as admin_role')
-      .where('users.username', decoded.username)
+    const result = await db('Users')
+    .join('admin', 'Users.id', 'admin.id')
+    .select('Users.email', 'admin.role as admin_role')
+      .where('Users.email', decoded.email)
      .first();
 
 if (result && result.admin_role === 'admin') {

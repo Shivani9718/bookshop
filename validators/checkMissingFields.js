@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: true }));
 
 
 function checkMissingFields(requestBody) {
-    const requiredFields = ['title', 'isbn', 'publication_date', 'author', 'Store', 'description','Category', 'price'];
+    const requiredFields = ['title', 'isbn', 'storeID', 'author','Category', 'price'];
     const missingFields = [];
   
     requiredFields.forEach(field => {
@@ -24,7 +24,7 @@ function checkMissingFields(requestBody) {
   }
 
 function checkUserMissingField(requestBody){
-  const requiredFields= ['first_name', 'last_name', 'username', 'email', 'password'];
+  const requiredFields= ['firstName',   'email', 'password'];
  
   const missingFields = [];
   

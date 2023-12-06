@@ -24,22 +24,22 @@ const publicPath = path.join(__dirname, '..', 'public');
 
 app.use(express.static(publicPath));
     // Database connection
-    const pool = new Pool({
-      host: 'localhost',
-      database: 'final',
-      user: 'postgres',
-      password: '12345',
-      port: 5432, // Default PostgreSQL port
-      //ssl: false, // Set to true for SSL connection, false for local development
-    });
-    pool.connect((err)=>{
-        if(err){
-            console.log(err);
-        }
-        else{
-            console.log("database connected");
-        }
-    })
+    // const pool = new Pool({
+    //   host: 'localhost',
+    //   database: 'final',
+    //   user: 'postgres',     
+    //   password: '12345',
+    //   port: 5432, // Default PostgreSQL port
+    //   //ssl: false, // Set to true for SSL connection, false for local development
+    // });
+    // pool.connect((err)=>{
+    //     if(err){
+    //         console.log(err);
+    //     }
+    //     else{
+    //         console.log("database connected");
+    //     }
+    // })
     
     //const knex = require('knex');
     const config = require('../knexfile'); // Adjust the path based on your project structure

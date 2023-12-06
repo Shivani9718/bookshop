@@ -102,10 +102,10 @@ function isValidName(name) {
 router.post('/', verifyAdminToken ,async (req, res) => {
     try {
       const bookIsbn = req.body.isbn;
-      const { title, isbn, publication_date, author, Store, description, quantity, Category, price, is_available } = req.body;
+      const { title, isbn, publicationDate, author, storeID, description, Category, price,quantity, isAvailable ,revisedYears} = req.body;
   
       console.log(req.body);
-      const validFields = ['title', 'author', 'isbn', 'publication_date', 'Category','quantity','price','Store','is_available','description']; // Add all valid fields
+      const validFields = ['title', 'author', 'isbn', 'publicationDate', 'quantity','Category','price','storeID','isAvailable','description','revisedYears']; // Add all valid fields
        
       const invalidFields = Object.keys(req.body).filter(field => !validFields.includes(field));
 
@@ -119,11 +119,11 @@ if (invalidFields.length > 0) {
       const isbnValue = req.body.isbn;
 
       if (!isbnValue) {
-        return res.status(400).json({ error: 'ISBN is missing in the request body' });
+        return res.status(400).json({ error: 'ISBN is missing ' });
       }
   
       // Query the "books" table based on the ISBN
-      const existingISBN  = await db('books').where('isbn', isbnValue).first();
+      const existingISBN  = await db('Books').where('isbn', isbnValue).first();
       if (existingISBN) {
           return res.status(400).json({ message : 'ISBN already exists'});
         }
@@ -137,10 +137,10 @@ if (invalidFields.length > 0) {
 
      if (!title) missingFields.push('title');
      if (!isbn) missingFields.push('isbn');
-     if (!publication_date) missingFields.push('publication_date');
+     //if (!publicationDate) missingFields.push('publication_date');
      if (!author) missingFields.push('author');
-     if (!Store) missingFields.push('Store');
-     if (!quantity) missingFields.push('quantity');
+     if (!storeID) missingFields.push('storeID');
+     //if (!quantity) missingFields.push('quantity');
      if (!Category) missingFields.push('Category');
      if (!price) missingFields.push('price');
 
@@ -151,10 +151,10 @@ if (invalidFields.length > 0) {
   
      
      
-      if (is_available !== undefined && typeof is_available !== 'boolean') {
+      if (isAvailable !== undefined && typeof isAvailable !== 'boolean') {
         return res.status(400).json({ message: 'Invalid value for is_available' });
       }
-      const isAvailableValue = is_available !== undefined ? is_available : true;
+      const isAvailableValue = isAvailable !== undefined ? isAvailable : true;
   
       if (!isValidName(Category) ) {
         return res.status(400).json({ message: 'Invalid Category names' });
@@ -173,32 +173,40 @@ if (invalidFields.length > 0) {
       if (!isValidPrice(price) ) {
         return res.status(400).json({ message: 'Invalid price . price must be greater than 0 and less than 10000 with only 4 decimal.' });
       }
-      const storeExists = await db('bookstore').where('store', Store).first();
+      const storeExists = await db('Bookstore').where('id', storeID).first();
   
       if (!storeExists) {
         return res.status(400).json({message: 'Invalid Store. Store does not exist' });
       }
      
     
-      if (!isValidPublicationDate(publication_date)) {
+      if (!isValidPublicationDate(publicationDate)) {
         return res.status(400).json({message: 'Invalid Date' });
       }
       
+      //  const storeName = await db('Bookstore').select('storeName').where('id', storeID).first();
+     
+  
+      // if (!storeExists) {
+      //   return res.status(400).json({message: 'Invalid Store. Store does not exist' });
+      // }
+     
      
   
       // Insert the book into the "books" table
-      const insertedBook = await db('books')
+      const insertedBook = await db('Books')
         .insert({
           title,
           isbn,
-          publication_date,
+          publicationDate,
           author,
-          Store,
+          storeID,
           description,
           quantity,
           Category,
           price,
-         is_available :isAvailableValue
+         isAvailable :isAvailableValue,
+         revisedYears
         })
         .returning('*'); // Return the inserted record
   

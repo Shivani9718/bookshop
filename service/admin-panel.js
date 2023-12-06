@@ -21,10 +21,10 @@ const validateBook = require('../validators/validationError');
 
 
 // get all books.....
-router.get('/admin-panel/getALLbooks',verifyToken,async (req, res) => {
+router.get('/',verifyToken,async (req, res) => {
     try {
-      const books = await db.select('*').from('books');
-      res.json(books);
+      const books = await db.select('title','author','Category','price','description').from('Books');
+      return res.status(200).json({ "Books Details": books });
     } catch (error) {
       console.error('Error fetching books:', error);
       res.status(500).send('Internal Server Error');
@@ -37,7 +37,7 @@ router.get('/admin-panel/getALLbooks',verifyToken,async (req, res) => {
 
 
   // delete book
-router.delete('/admin-panel/DELETEbooks/:bookId', verifyAdminToken,async (req, res) => {
+router.delete('/:bookId', verifyAdminToken,async (req, res) => {
     const bookId = req.params.bookId;
     const validationErrors =[];
   
@@ -57,11 +57,11 @@ router.delete('/admin-panel/DELETEbooks/:bookId', verifyAdminToken,async (req, r
     
       await db.transaction(async (trx) => {
         // Fetch the book before deletion for potential rollback
-        const bookToDelete = await trx('books').where('id', bookId).first();
+        const bookToDelete = await trx('Books').where('id', bookId).first();
         console.log(bookToDelete);
   
         // Delete the book
-        const deletedCount = await trx('books').where('id', bookId).del();
+        const deletedCount = await trx('Books').where('id', bookId).del();
   
         if (deletedCount > 0) {
           // If deletion is successful, commit the transaction
@@ -85,9 +85,9 @@ router.delete('/admin-panel/DELETEbooks/:bookId', verifyAdminToken,async (req, r
 
 
   // get all categories
-router.get('/admin-panel/categories',verifyToken, async (req, res) => {
+router.get('/categories',verifyToken, async (req, res) => {
     try {
-        const categories = await db.distinct('Category').from('books');
+        const categories = await db.distinct('Category').from('Books');
        
       
           if (categories.length > 0) {
@@ -110,7 +110,7 @@ router.get('/admin-panel/categories',verifyToken, async (req, res) => {
 
 // get by category...
 
-  router.get('/admin-panel/GETbyCATEGORIES/:Category',verifyToken, async (req, res) => {
+  router.get('/:Category',verifyToken, async (req, res) => {
   console.log("here")
   const CategorySearchByUser = req.params.Category.trim();
   console.log("Category  : ", CategorySearchByUser)
@@ -119,7 +119,7 @@ router.get('/admin-panel/categories',verifyToken, async (req, res) => {
   }
   try {
     const userEnteredCategory = CategorySearchByUser.toLowerCase(); // Convert user input to lowercase
-    const FetchByCategory = await db('books').whereRaw('LOWER("Category") = ?', [userEnteredCategory]);
+    const FetchByCategory = await db('Books').whereRaw('LOWER("Category") = ?', [userEnteredCategory]);
 
 
     if (FetchByCategory.length > 0) {
@@ -144,7 +144,7 @@ router.put('/update/:id',verifyAdminToken,validateBookData, async (req, res) => 
       if (!req.body || Object.keys(req.body).length === 0) {
       return res.status(400).json({ error: 'Empty request body' });
     } 
-    const existingBook = await db('books').select('id').where('id', bookId).first();
+    const existingBook = await db('Books').select('id').where('id', bookId).first();
   
         if (!existingBook) {
           return res.status(400).json({message:"Book does not exist."});
@@ -154,7 +154,7 @@ router.put('/update/:id',verifyAdminToken,validateBookData, async (req, res) => 
 
     
 
-    const validFields = ['id', 'title', 'author', 'isbn', 'publication_date', 'Category', 'price', 'Store', 'is_available', 'quantity', 'description'];
+    const validFields = ['id', 'title', 'author', 'isbn', 'publicationDate', 'Category', 'price', 'storeID', 'isAvailable', 'quantity', 'description','revisedYears'];
     const invalidFields = Object.keys(req.body).filter(field => !validFields.includes(field));
     if (invalidFields.length > 0) {
       return res.status(400).json({ message: `Invalid fields: [${invalidFields.join(', ')}]` });
@@ -173,9 +173,9 @@ router.put('/update/:id',verifyAdminToken,validateBookData, async (req, res) => 
   
       
       
-    await db('books').where('id', bookId).update(req.body);
+    await db('Books').where('id', bookId).update(req.body);
       
-    const updatedBook = await db('books').where('id', bookId).first();
+    const updatedBook = await db('Books').where('id', bookId).first();
 
     // Send the updated book in the response
     res.status(200).json({ message: 'Book updated successfully', updatedBook });

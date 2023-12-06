@@ -13,21 +13,21 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Database connection
-const pool = new Pool({
-  host: 'localhost',
-  database: 'final',
-  user: 'postgres',
-  password: '12345',
-  port: 5432,
-});
+// const pool = new Pool({
+//   host: 'localhost',
+//   database: 'final',
+//   user: 'postgres',
+//   password: '12345',
+//   port: 5432,
+// });
 
-pool.connect((err) => {
-  if (err) {
-    console.log(err);
-  } else {
-    console.log('Database connected');
-  }
-});
+// pool.connect((err) => {
+//   if (err) {
+//     console.log(err);
+//   } else {
+//     console.log('Database connected');
+//   }
+// });
 
 const publicPath = path.join(__dirname, '..', 'public');
 

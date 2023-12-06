@@ -23,7 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 // upsert book
 
 
-router.post('/', verifyAdminToken, async (req, res) => {
+router.put('/', verifyAdminToken, async (req, res) => {
   try {
 
      
@@ -31,7 +31,7 @@ router.post('/', verifyAdminToken, async (req, res) => {
     let bookDataFromBody = req.body;
     if (bookDataFromBody.id != undefined) {
 
-    const validFields = ['id', 'title', 'author', 'isbn', 'publication_date', 'Category', 'price', 'Store', 'is_available', 'quantity', 'description'];
+    const validFields = ['id', 'title', 'author', 'isbn', 'publicationDate', 'Category', 'price', 'storeID', 'isAvailable', 'quantity', 'description','revisedYears'];
       const invalidFields = Object.keys(req.body).filter(field => !validFields.includes(field));
   
       if (invalidFields.length > 0) {
@@ -47,8 +47,8 @@ router.post('/', verifyAdminToken, async (req, res) => {
       }
 
       
-      await db('books').where('id', bookDataFromBody.id).update(req.body);
-      const bookAdded = await db('books').where('id', bookDataFromBody.id).first();
+      await db('Books').where('id', bookDataFromBody.id).update(req.body);
+      const bookAdded = await db('Books').where('id', bookDataFromBody.id).first();
       return res.status(200).json({ message: 'Book updated successfully', bookAdded });
     } 
   
@@ -59,9 +59,9 @@ router.post('/', verifyAdminToken, async (req, res) => {
     
     else {
 
-      const { title, isbn, publication_date, author, Store, description, Category, price, is_available } = req.body;
+      const { title, isbn, publicationDate, author, storeID, description, Category, price, isAvailable,quantity,revisedYears } = req.body;
 
-      const validFields = ['id', 'title', 'author', 'isbn', 'publication_date', 'Category', 'price', 'Store', 'is_available', 'quantity', 'description'];
+      const validFields = ['id', 'title', 'author', 'isbn', 'publicationDate', 'Category', 'price', 'storeID', 'isAvailable', 'quantity', 'description','revisedYears'];
       const invalidFields = Object.keys(req.body).filter(field => !validFields.includes(field));
   
       if (invalidFields.length > 0) {
@@ -84,12 +84,12 @@ router.post('/', verifyAdminToken, async (req, res) => {
 
      
 
-      await db('books').insert({
-        title, isbn, publication_date, author, Store, description, Category, price, is_available
+      await db('Books').insert({
+        title, isbn, publicationDate, author, storeID, description, Category, price, isAvailable,quantity,revisedYears
       });
 
-      const bookAdded = await db('books').where('title', title).first();
-      return res.status(200).json({ message: 'Added book successfully', bookAdded });
+      //const bookAdded = await db('Books').where('isbn', req,body.isbn).first();
+      return res.status(201).json({ message: 'Added book successfully' });
     }
   } 
   catch (error) {
