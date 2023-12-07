@@ -40,7 +40,7 @@ exports.up = function (knex) {
         table.string('lastName');
         table.string('email').notNullable().unique();
         table.string('password').notNullable();
-        table.jsonb('address');
+        table.jsonb('address').notNullable();
         table.string('contact',10);
         table.specificType('location', 'geometry');
         table.timestamps(true, true);

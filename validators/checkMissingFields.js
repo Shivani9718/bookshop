@@ -24,7 +24,7 @@ function checkMissingFields(requestBody) {
   }
 
 function checkUserMissingField(requestBody){
-  const requiredFields= ['firstName',   'email', 'password'];
+  const requiredFields= ['firstName',   'email', 'password','address'];
  
   const missingFields = [];
   

@@ -27,6 +27,58 @@ function isPasswordComplex(password) {
   //   return typeof username === 'string' && username.trim() !== '' && usernameRegex.test(username);
   // }
   
+  function validateAddress(address) {
+    const errors = [];
+  
+    // Check if the required fields are present
+    if (!address.street || typeof address.street !== 'string') {
+      errors.push("Street is required and must be a string.");
+    }
+  
+    if (!address.city || typeof address.city !== 'string') {
+      errors.push("City is required and must be a string.");
+    }
+  
+    if (!address.state || typeof address.state !== 'string') {
+      errors.push("State is required and must be a string.");
+    }
+  
+    if (!address.postalCode || typeof address.postalCode !== 'number') {
+      errors.push("Postal Code is required and must be a number.");
+    }
+  
+    // Additional validation rules can be added based on your requirements
+    // For example, you might want to check if postalCode is a valid format.
+  
+    return errors;
+  }
+  
+  // Example usage:
+  // const sampleAddress = {
+  //   street: "123 Main St",
+  //   city: "Example City",
+  //   state: "CA",
+  //   postalCode: 12345, // Use an integer for the postal code
+  // };
+  
+  // const validationErrors = validateAddress(sampleAddress);
+  
+  // if (validationErrors.length > 0) {
+  //   console.log("Validation Errors:", validationErrors);
+  // } else {
+  //   console.log("Address is valid.");
+  // }
+  
+  
+  // Example usage:
+  // const sampleAddress = {
+  //   street: "123 Main St",
+  //   city: "Example City",
+  //   state: "CA",
+  //   postalCode: "12345",
+  // };
+  
+  // const validationErrors = validateAddress(sample
   
   
   function validateGmail(email) {
@@ -54,9 +106,15 @@ async function userValidate(requestBody){
     // if (!isValidUsername(requestBody.username)) {
     //   validationErrors.push('Invalid username' );
     // }
+    if(requestBody.address){
+      if(!validateAddress(requestBody.address)){
+        //console.log(err);
+        validationErrors.push(err);
+      }
+    }
   
     if (!validateGmail(requestBody.email)) {
-      validationErrors.push( 'Invalid email.email must include @gmail.com' );
+      validationErrors.push( "email :Invalid email.email must include @gmail.com" );
     }
 
     // const existingUser= await db('Users').where('email', requestBody.username).first();

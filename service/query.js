@@ -41,10 +41,7 @@ router.get('/', verifyToken,async (req, res) => {
       const [operator, value] = queryParams.title.split(':');
       booksFilter.title = { operator, value };
     }
-    // if (queryParams.Category) {
-    //   const [operator, value] = queryParams.Category.split(':');
-    //   booksFilter.Category= { operator, value };
-    // }
+   
 
 
     if (queryParams.publicationDate) {
@@ -63,12 +60,18 @@ router.get('/', verifyToken,async (req, res) => {
       booksFilter.Category = { operator, value };
     }
 
-    // Build the Knex query dynamically
-    const books = await db('Books')
-      .where((builder) => {
-        Object.entries(booksFilter).forEach(([field, filter]) => {
-          if (filter && filter.operator) {
+    
+        
+    
+        // Build the Knex query dynamically
+        
+    
+        
+    const queryBuilder = db('Books').where((builder) => {
+      Object.entries(booksFilter).forEach(([field, filter]) => {
+        if (filter && filter.operator) {
           switch (filter.operator) {
+          
             case 'eq':
               if (isNaN(filter.value)) {
                 builder.where(field, 'ilike', `%${filter.value}%`);
@@ -100,9 +103,25 @@ router.get('/', verifyToken,async (req, res) => {
               builder.where(field, '>=', filter.value);
               }
               break;
-            case 'in':
-              builder.whereIn(field, filter.value.split(','));
-              break;
+              case 'in':
+                 const inValues = filter.value.split(',').map(value => {
+                 // Convert values to numbers if the field is numeric
+                return isNaN(value) ? value : parseFloat(value);
+              });
+
+              if (inValues.every(value => typeof value === 'string')) {
+            // If all values are strings, use ilike for case-insensitive matching
+              builder.where((builder) => {
+              inValues.forEach((value) => {
+              builder.orWhere(field, 'ilike', `%${value}%`);
+               });
+              });
+              } else {
+             // Use whereIn for numeric values
+            builder.whereIn(field, inValues);
+          }
+
+            break;
             case 'ni':
               builder.whereNotIn(field, filter.value.split(','));
               break;
@@ -111,24 +130,34 @@ router.get('/', verifyToken,async (req, res) => {
               break;
             default:
               builder.where(field, '=', filter.value);
+            }
           }
-        }
-        
         });
-      })
-      .select('title','price','description','Category','author','publicationDate');
-      console.log(books);
+      });
 
-    if (books.length > 0) {
-     return res.status(200).json(books);
-    } else {
-     res.status(404).json(" No books Found"  );
+      // Sorting logic
+      if (queryParams.sortBy && queryParams.sortOrder) {
+        const sortBy = queryParams.sortBy; // Specify the field to sort by
+        const sortOrder = queryParams.sortOrder.toLowerCase(); // 'asc' or 'desc'
+  
+        queryBuilder.orderBy(sortBy, sortOrder);
+      }
+  
+      // Execute the query and retrieve books
+      const books = await queryBuilder.select('title', 'price', 'description', 'Category', 'author', 'publicationDate');
+      console.log(books);
+  
+      if (books.length > 0) {
+        return res.status(200).json(books);
+      } else {
+        res.status(404).json("No books found");
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ error: "Invalid search" });
     }
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
+  });
+
 
 
 module.exports = router;

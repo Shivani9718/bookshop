@@ -25,6 +25,8 @@ const secretKey = process.env.secretKey;
 router.post('/', async (req, res) => {
   
   try {
+    const errorLog =[];
+    
     const { firstName, lastName, email,address,contact, password } = req.body;
 
     if (!req.body || Object.keys(req.body).length === 0) {
@@ -64,83 +66,72 @@ router.post('/', async (req, res) => {
 
 
 
-
+  async function getLatLngFromAddress(address) {
+    const apiUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
+    console.log("er",address);
   
-    // async function getLatLngFromAddress(userAddress) {
-    //   const apiUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(userAddress)}`;
-    
-    //   try {
-    //     const response = await fetch(apiUrl);
-    
-    //     const data = await response.json();
-    //     //console.log(data)
-    //     if (data.length > 0) {
-    //       const location = data[0];
-    //      // console.log(location)
-    //       return { latitude: parseFloat(location.lat), longitude: parseFloat(location.lon) };
-    //     } else {
-    //       throw new Error('Geocoding failed: No results');
-    //     }
-    //   } catch (error) {
-    //     throw new Error('Geocoding failed: ' + error.message);
-    //   }
-    // }
-
-    async function getLatLngFromAddress(address) {
-      const apiUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
-    
-      try {
-        const response = await fetch(apiUrl);
-        const data = await response.json();
-    
-        if (data.length > 0) {
-          const location = data[0];
-          return { latitude: parseFloat(location.lat), longitude: parseFloat(location.lon) };
-        } else {
-          throw new Error('Geocoding failed: No results');
-        }
-      } catch (error) {
-        throw new Error('Geocoding failed: ' + error.message);
-      }
-    }
-    const userAddress = req.body.address;
-    const valuesArray = Object.values(userAddress);
+    try {
+      const response = await fetch(apiUrl);
+      const data = await response.json();
   
-    // Join values into a string separated by commas
-    const resultString = valuesArray.join(',');
-    
-    async function get() {
-      
-      try {
-        const coordinates = await getLatLngFromAddress(resultString);
-        return coordinates; // Return the result
-      } catch (error) {
-        console.error('Error:', error.message);
-        throw error; // Re-throw the error to propagate it
+      if (data.length > 0) {
+        //console.log(data);
+        const location = data[0];
+        //console.log(location);
+        return { latitude: parseFloat(location.lat), longitude: parseFloat(location.lon) };
+      } else {
+        //throw new Error('No coordinates found for the given address');
+        errorLog.push("enter a valid address.");
       }
+    } catch (error) {
+      throw new Error('Geocoding failed: ' + error.message);
     }
-    
-    // Assuming you have access to req.body in your HTTP request handler
-
-    
-   
-      const coordinates= await getLatLngFromAddress(resultString);
-      console.log(coordinates);
-      
-
-      const user = {
-        id: req.body._id,
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        email: req.body.email,
-        address: req.body.address,
-        contact: req.body.contact,
-        location: {
-          type: 'Point',
-          coordinates: [coordinates.longitude, coordinates.latitude],
-        },
-      };
-    
+  }
+  
+  const userAddress = req.body.address;
+  const valuesArray = Object.values(userAddress);
+  
+  // Join values into a string separated by commas
+  const resultString = valuesArray.join(',');
+  console.log("address", resultString);
+  
+  async function get() {
+    try {
+      //console.log(resultString);
+      const coordinates = await getLatLngFromAddress(resultString);
+      //console.log(coordinates);
+      return coordinates; // Return the result
+    } catch (error) {
+      // Handle the error appropriately, for example:
+      console.error('Error:', error.message);
+      throw error;
+    }
+  }
+  
+  // Assuming you have access to req.body in your HTTP request handler
+  
+  try {
+    const coordinates = await get();
+    console.log(coordinates);
+  
+    const user = {
+      id: req.body._id,
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email,
+      address: req.body.address,
+      contact: req.body.contact,
+      location: {
+        type: 'Point',
+        coordinates: [coordinates.longitude, coordinates.latitude],
+      },
+    };
+  
+    // Rest of your code
+  // } catch (error) {
+  //   res.status(500).json({ message: "Cannot fetch coordinates or other error occurred" });
+  // }
+  
     
   
     
@@ -179,15 +170,23 @@ router.post('/', async (req, res) => {
     })
 
   
-    res.json({ message:"User registered successfully",token,user})
+   res.json({token,user})
     
   } 
-  
+    catch (error) {
+    errorLog.push("Cannot fetch Location." );
+  }
+
+  if(errorLog.length>0)
+{
+  return res.status(400).send(errorLog);
+}}
   
   catch (error) {
     console.error(error);
     res.status(500).send('Error registering user');
   }
+
 });
   
 module.exports = router;

@@ -8,7 +8,7 @@ require('dotenv').config();
 require('dotenv').config();
 const secretKey = process.env.secretKey;
 
-console.log(secretKey);
+//console.log(secretKey);
 
 
 async function verifyAdminToken(req, res, next) {
@@ -21,7 +21,7 @@ async function verifyAdminToken(req, res, next) {
 
   const token = authorizationHeader.split(' ')[1];
   const decodedToken = jwt.decode(token, { complete: true });
-  console.log('Decoded Token:', decodedToken);
+  //console.log('Decoded Token:', decodedToken);
   
 
   

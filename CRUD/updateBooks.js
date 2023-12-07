@@ -20,7 +20,7 @@ const validateBook = require('../validators/validationError');
 
 
 
-router.put('/update/:id',verifyAdminToken,validateBookData, async (req, res) => {
+router.put('/:id',verifyAdminToken,validateBookData, async (req, res) => {
     const bookId = req.params.id.trim();
     try {
      
@@ -63,7 +63,7 @@ router.put('/update/:id',verifyAdminToken,validateBookData, async (req, res) => 
       const updatedBook = await db('Books').where('id', bookId).first();
   
       // Send the updated book in the response
-      res.status(200).json({ message: 'Book updated successfully', updatedBook });
+      res.status(200).json({book :"Book updated successfully", updatedBook });
     } catch (error) {
       console.error('Error updating book:', error);
       //validationErrors.push('error updating book');

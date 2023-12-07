@@ -24,7 +24,7 @@ const validateBook = require('../validators/validationError');
 router.get('/',verifyToken,async (req, res) => {
     try {
       const books = await db.select('title','author','Category','price','description').from('Books');
-      return res.status(200).json({books });
+      return res.status(200).send(books);
     } catch (error) {
       console.error('Error fetching books:', error);
       res.status(500).send('Internal Server Error');

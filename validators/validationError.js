@@ -113,10 +113,7 @@ function isValidBookTitle(title) {
 
    
   
-      if (!requestBody || Object.keys(requestBody).length === 0) {
-        validationErrors.push('Empty request body. Provide relevant information.')
-        
-      }
+      
 
      if(requestBody.id){
       if (requestBody.id != undefined) {
