@@ -33,7 +33,7 @@ router.put('/', verifyAdminToken ,async (req, res) => {
         const invalidFields = Object.keys(req.body[i]).filter(field => !validFields.includes(field));
 
         if (invalidFields.length > 0) {
-          result.errorLog.push({ "invalid Fields": invalidFields });
+          result.errorLog.push({ "invalid Fields at :[${req.body[i].id}] ": invalidFields });
           continue;
         }
 
@@ -65,12 +65,12 @@ router.put('/', verifyAdminToken ,async (req, res) => {
           continue;
         }
 
-        const existingIsbnBook = await db('Books').where('isbn', req.body[i].isbn).first();
-        if (existingIsbnBook) {
-            result.errorLog.push("isbn exist");
-            continue;
-         //return res.status(400).send('ISBN already exists');
-        } 
+        // const existingIsbnBook = await db('Books').where('isbn', req.body[i].isbn).first();
+        // if (existingIsbnBook) {
+        //     result.errorLog.push("isbn exist");
+        //     continue;
+        //  //return res.status(400).send('ISBN already exists');
+        // } 
 
         const validationError = await validateBook(req.body[i]);
         if (Object.keys(validationError).length !== 0) {
@@ -80,7 +80,7 @@ router.put('/', verifyAdminToken ,async (req, res) => {
 
         // Insert a new book
         await db('Books').insert(req.body[i]);
-        result.successResponses.push("A New Book has been added to the database");
+        result.successResponses.push("A New Book has been added ");
         continue;
       }
     }

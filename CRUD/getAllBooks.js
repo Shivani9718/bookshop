@@ -10,7 +10,7 @@ const verifyAdminToken = require('../middleware/authorize');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 require('dotenv').config();
-const { validateBookData } = require('../routes/bookRouter');
+
 app.use(bodyParser.json());
 app.use(express.json());
 const validateBook = require('../validators/validationError');

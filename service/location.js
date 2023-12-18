@@ -42,7 +42,7 @@ async function getLatLngFromAddress(address) {
 
 // Example usage
 async function get() {
-const userAddress = 'A-4 paschim vihar,Delhi,110063';
+const userAddress = 'sector 10 , rohini Delhi,110085';
 try {
   const coordinates = await getLatLngFromAddress(userAddress);
   // console.log('Latitude:', coordinates.latitude);

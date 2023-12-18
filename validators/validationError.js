@@ -2,7 +2,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
-
+const { DateTime } = require('luxon');
 const knex = require('knex');
 const config = require('../knexfile'); 
 const app = express();
@@ -83,110 +83,92 @@ function isValidBookTitle(title) {
     return true;
   }
   
-  function isValidPublicationDate(publicationDate) {
-   // Split the date string into parts
-   const parts = publicationDate.split('/');
   
-   // Ensure that the date string has three parts (year, month, day)
-   if (parts.length !== 3) {
-     return false;
-   }
-  
-   // Create a Date object
-   const date = new Date(`${parts[0]}-${parts[1]}-${parts[2]}`);
-  
-   // Check if the conversion resulted in a valid date and the string is in the expected format
-   return !isNaN(date) && date.toISOString().split('T')[0] === date.toISOString().split('T')[0];
-  }
+
+function isValidPublicationDate(publicationDate) {
+    try {
+        const luxonDate = DateTime.fromFormat(publicationDate, 'yyyy/MM/dd');
+        
+        // Check if the Luxon date is valid and if the formatted string matches the input
+        return luxonDate.isValid && luxonDate.toFormat('yyyy/MM/dd') === publicationDate;
+    } catch (error) {
+        // Handle parsing errors (e.g., invalid date string)
+        return false;
+    }
+}
   
 
 
-
-  
-  async function validateBook(requestBody) {
-   
   
   
-      
+    async function validateBook(requestBody) {
+      const validationErrors = {};
   
-      const validationErrors = [];
-
-   
+      if (requestBody.id) {
+          if (requestBody.id != undefined) {
+              const existingBook = await db('Books').select('id').where('id', requestBody.id).first();
   
-      
-
-     if(requestBody.id){
-      if (requestBody.id != undefined) {
-        const existingBook = await db('Books').select('id').where('id', requestBody.id).first();
-  
-        if (!existingBook) {
-            validationErrors.push("Book does not exist.");
-          
+              if (!existingBook) {
+                  validationErrors.id = "Book does not exist.";
+              }
+          }
+      }
+      if (requestBody.isbn) {
+        try {
+            const existingIsbnBook = await db('Books').where('isbn', requestBody.isbn).first();
+            if (existingIsbnBook) {
+                validationErrors.isbn = 'ISBN already exists';
+            } else if (!isValidISBN(requestBody.isbn)) {
+                validationErrors.isbn = 'Invalid ISBN format';
+            }
+        } catch (error) {
+            console.error('Error checking ISBN uniqueness:', error);
+            validationErrors.isbn = 'Error checking ISBN uniqueness';
         }
     }
-  }
-  
-        
-  
-        if (requestBody.storeID) {
+      if (requestBody.storeID) {
           const storeExists = await db('Bookstore').where('id', requestBody.storeID).first();
   
           if (!storeExists) {
-            validationErrors.push("Invalid Store. Store does not exist");
+              validationErrors.storeID = "Invalid Store. Store does not exist";
           }
-          
-        }
-         if(requestBody.author){
-        if (requestBody.author && !isValidName(requestBody.author)) {
-          validationErrors.push("Invalid author name.");
-        }
-    }
-   if(requestBody.title){
-        if (requestBody.title && !isValidBookTitle(requestBody.title)) {
-          validationErrors.push("Invalid book title ");
-        }
-    }
-    if(requestBody.Category){
-        if (requestBody.Category && !isValidBookTitle(requestBody.Category) ){
-          validationErrors.push('Invalid book Category ');
-        }
-    }
-    
-        if (requestBody.isbn) {
-          try {
-            const existingIsbnBook = await db('Books').where('isbn', requestBody.isbn).first();
-            if (existingIsbnBook) {
-              validationErrors.push('ISBN already exists');
-            } else if (!isValidISBN(requestBody.isbn)) {
-                validationErrors.push('Invalid ISBN format' );
-            }
-          } catch (error) {
-            console.error('Error checking ISBN uniqueness:', error);
-            validationErrors.push('Error checking ISBN uniqueness');
-          }
-        }
-
-        if(requestBody.price){
-        if (requestBody.price && !isValidPrice(requestBody.price)) {
-            validationErrors.push("Invalid Price. Price must be a number. Price must be greater than 0 and less than 10000 with only 4 decimal.");
-          }
-        }
-
-
-        
-     
-        
-        
-      
+      }
   
-    
-        return    validationErrors;
-       
+      if (requestBody.author) {
+          if (requestBody.author && !isValidName(requestBody.author)) {
+              validationErrors.author = "Invalid author name.";
+          }
+      }
+  
+      if (requestBody.title) {
+          if (requestBody.title && !isValidBookTitle(requestBody.title)) {
+              validationErrors.title = "Invalid book title ";
+          }
+      }
+  
+      if (requestBody.Category) {
+          if (requestBody.Category && !isValidName(requestBody.Category)) {
+              validationErrors.Category = 'Invalid book Category ';
+          }
+      }
+    if(requestBody.publicationDate){
+        if(requestBody.publicationDate && !isValidPublicationDate(requestBody.publicationDate)){
+            validationErrors.publicationDate="Invalid Publication Date";
+        }
     }
       
   
+      if (requestBody.price) {
+          if (requestBody.price && !isValidPrice(requestBody.price)) {
+              validationErrors.price = "Invalid Price. Price must be a number. Price must be greater than 0 and less than 10000 with only 4 decimal.";
+          }
+      }
+  
+      return validationErrors;
+  }
   
   
+   
     
   
   

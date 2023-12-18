@@ -10,7 +10,7 @@ const verifyAdminToken = require('../middleware/authorize');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 require('dotenv').config();
-const { validateBookData } = require('../routes/bookRouter');
+//const { validateBookData } = require('../routes/bookRouter');
 app.use(bodyParser.json());
 app.use(express.json());
 const validateBook = require('../validators/validationError');
@@ -20,8 +20,12 @@ const validateBook = require('../validators/validationError');
 
 
 
-router.put('/:id',verifyAdminToken,validateBookData, async (req, res) => {
+router.put('/:id',verifyAdminToken, async (req, res) => {
     const bookId = req.params.id.trim();
+    let resultObject = {
+     
+      validationErrors: {}
+  };
     try {
      
   
@@ -47,15 +51,21 @@ router.put('/:id',verifyAdminToken,validateBookData, async (req, res) => {
   
      
   
-        
-      const validationErrors = await validateBook(req.body);
+        console.log("check validation");
+      
+        const validationErrors = await validateBook(req.body);
+
+        if (Object.keys(validationErrors).length > 0) {
+            resultObject.validationErrors = validationErrors;
+        }
   
-      if (validationErrors.length > 0) {
-        const errorMessage =  validationErrors.join();
-        return res.status(400).json({ "Validation errors": [errorMessage] });
-      }
+  
+  
+        if (Object.keys(resultObject.validationErrors).length > 0) {
+            return res.status(400).json(resultObject);
+        }
        
-    
+    console.log("checked");
         
         
       await db('Books').where('id', bookId).update(req.body);

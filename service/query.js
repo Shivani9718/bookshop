@@ -4,9 +4,8 @@
  const config = require('../knexfile'); 
  const app = express();
  const db = knex(config);
-//  const jwt = require('jsonwebtoken');
-//  const bcrypt = require('bcrypt');
-//  const path = require('path');
+
+
  const router = express.Router();
  const verifyToken = require('../middleware/verifytoken');
  app.use(express.json());
@@ -163,6 +162,3 @@ router.get('/', verifyToken,async (req, res) => {
 module.exports = router;
 
 
-// app.listen(PORT, () => {
-//   console.log(`Server is running on http://localhost:${PORT}`);
-// });

@@ -14,6 +14,19 @@ function isPasswordComplex(password) {
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]+$/;
     return passwordRegex.test(password);
   }
+  function validateContact(contact) {
+    // Remove any non-numeric characters from the contact number
+    const numericContact = contact.replace(/\D/g, '');
+  
+    // Check if the cleaned contact number is exactly 10 digits
+    if (/^\d{10}$/.test(numericContact)) {
+      // Valid contact number
+      return true;
+    } else {
+      // Invalid contact number
+      return false;
+    }
+  }
   
   
   function isValidName(name) {
@@ -53,32 +66,7 @@ function isPasswordComplex(password) {
     return errors;
   }
   
-  // Example usage:
-  // const sampleAddress = {
-  //   street: "123 Main St",
-  //   city: "Example City",
-  //   state: "CA",
-  //   postalCode: 12345, // Use an integer for the postal code
-  // };
-  
-  // const validationErrors = validateAddress(sampleAddress);
-  
-  // if (validationErrors.length > 0) {
-  //   console.log("Validation Errors:", validationErrors);
-  // } else {
-  //   console.log("Address is valid.");
-  // }
-  
-  
-  // Example usage:
-  // const sampleAddress = {
-  //   street: "123 Main St",
-  //   city: "Example City",
-  //   state: "CA",
-  //   postalCode: "12345",
-  // };
-  
-  // const validationErrors = validateAddress(sample
+
   
   
   function validateGmail(email) {
@@ -88,47 +76,60 @@ function isPasswordComplex(password) {
     // Test the email against the regular expression
     return gmailRegex.test(email);
   }
+  async function userValidate(requestBody) {
 
-async function userValidate(requestBody){
-    const validationErrors = [];
-    
+
+    const validationErrors = {};
+    if (requestBody.email) {
+    const existingEmail = await db('Users').where('email', requestBody.email).first();
+    if (existingEmail) {
+        validationErrors.email = 'Email already exists';
+    }
+  }
+  if(requestBody.password){
     if (!isPasswordComplex(requestBody.password)) {
-      validationErrors.push('Password requirements not met.Password must be greater than or equal to 8 character and must conatin  a uppercase , a lowercase and a special character' );
+        validationErrors.password = 'Password requirements not met. Password must be greater than or equal to 8 characters and must contain an uppercase letter, a lowercase letter, and a special character.';
     }
-  
-    if (!isValidName(requestBody.firstName) ) {
-      validationErrors.push(  'Invalid first name' );
+  }
+  if(requestBody.firstName){
+    if (!isValidName(requestBody.firstName)) {
+        validationErrors.firstName = 'Invalid first name';
     }
-     
-    if (!isValidName(requestBody.lastName) ) {
-      validationErrors.push('Invalid last name' );
+  }
+    
+   if(requestBody.contact){
+    if (!validateContact(requestBody.contact)) {
+      validationErrors.contact = 'Invalid contact. must contains 10 numeric value.';
+  } 
+} 
+
+  if(requestBody.lastName){
+    if (!isValidName(requestBody.lastName)) {
+        validationErrors.lastName = 'Invalid last name';
     }
-    // if (!isValidUsername(requestBody.username)) {
-    //   validationErrors.push('Invalid username' );
-    // }
-    if(requestBody.address){
-      if(!validateAddress(requestBody.address)){
-        //console.log(err);
-        validationErrors.push(err);
-      }
+  }
+
+   
+
+    if (requestBody.address) {
+        if (!validateAddress(requestBody.address)) {
+            validationErrors.address = 'Invalid address'; // Change this message accordingly
+        }
     }
-  
+ if(requestBody.email){
     if (!validateGmail(requestBody.email)) {
-      validationErrors.push( "email :Invalid email.email must include @gmail.com" );
+        validationErrors.email = 'Invalid email. Email must include @gmail.com';
     }
+  }
 
-    // const existingUser= await db('Users').where('email', requestBody.username).first();
-    // if (existingUser) {
-    //   validationErrors.push( "email already Exist" );
-    // }
-    const existingemail= await db('Users').where('email', requestBody.email).first();
-    if (existingemail) {
-      validationErrors.push("email already exist" );
-    }
 
+    
 
     return validationErrors;
 }
+
+module.exports = userValidate;
+
 
 
 module.exports = userValidate;
