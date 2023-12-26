@@ -7,7 +7,7 @@ const db = knex(config);
 const {checkMissingFields} = require('../validators/checkMissingFields');
 const validateBook = require('../validators/validationError');
 const verifyAdminToken = require('../middleware/authorize');
-
+const elasticClient= require('../elasticSearch');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -68,11 +68,22 @@ router.post('/', verifyAdminToken, async (req, res) => {
       }
 
 
-      await db('Books').insert({
+      const [bookObject] = await db('Books').insert({
           title, isbn, publicationDate, author, storeID, description, Category, price, isAvailable, quantity, revisedYears
-      });
-
+      },'id');
+      
+      const books = req.body;
+      const bookId = bookObject.id;
+        
+      //const insertedBook = await db('Books').where('id', bookId).first();
+      await elasticClient.index({
+        index: 'books',
+        id: bookId.toString(), // Convert the ID to a string
+        body:books,
+      }); 
       return res.status(201).send(req.body);
+
+      
   } 
   
   

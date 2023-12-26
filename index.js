@@ -1,23 +1,11 @@
 const express = require('express');
-
-const router = express.Router();
 const PORT = 8090;
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 require('./elasticSearch');
+const router = express.Router();
 
-// const { Client } = require('@elastic/elasticsearch');
-
-
-// const ES_HOST = 'http://localhost:9200'; // Replace with your Elasticsearch server URL
-// const client = new Client({ node: ES_HOST });
-
-// // Add Elasticsearch client to the router for easy access in routes
-// app.use((req, res, next) => {
-//   req.elasticsearchClient = client;
-//   next();
-// });
 
 const loginRoutes = require('./service/login');
 const queryRoutes = require('./service/query');
@@ -28,6 +16,7 @@ const updateBooks = require('./CRUD/updateBooks');
 const createBook = require('./CRUD/createBook');
 const upsertBook = require('./service/upsert');
 const bulkUpsert = require('./CRUD/bulkUpsert');
+const geodistance = require('./service/geodistance');
 app.use(router);
 
 
@@ -44,7 +33,7 @@ app.use('/update',updateBooks);
 app.use('/upsert', upsertBook);
 app.use('/books', queryRoutes);
 app.use('/bulkUpsert',bulkUpsert);
-
+app.use('/users',geodistance);
 
 
 

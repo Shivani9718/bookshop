@@ -10,6 +10,7 @@ const verifyAdminToken = require('../middleware/authorize');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 require('dotenv').config();
+const elasticClient= require('../elasticSearch');
 //const { validateBookData } = require('../routes/bookRouter');
 app.use(bodyParser.json());
 app.use(express.json());
@@ -71,15 +72,33 @@ router.put('/:id',verifyAdminToken, async (req, res) => {
       await db('Books').where('id', bookId).update(req.body);
         
       const updatedBook = await db('Books').where('id', bookId).first();
+    //console.log("updated");
+
+      await elasticClient.update({
+        index: 'books',
+        id: bookId,
+        body: {
+            doc: req.body, // Update the document with the new values
+            doc_as_upsert: false
+        }
+        })
+    
+    
+       
+       
+        res.status(200).json({
+              book: "Book updated successfully",
+              updatedBook
+            });
+      } catch (error) {
+        console.error('Error updating book:', error);
+        res.status(400).json({ message: 'Error updating book' });
+      }
+    });
+    
+      
+    
   
-      // Send the updated book in the response
-      res.status(200).json({book :"Book updated successfully", updatedBook });
-    } catch (error) {
-      console.error('Error updating book:', error);
-      //validationErrors.push('error updating book');
-    res.status(400).json({ message : 'error updating book' });
-    }
-  });
    
       
     

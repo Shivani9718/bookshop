@@ -87,10 +87,10 @@ function isValidBookTitle(title) {
 
 function isValidPublicationDate(publicationDate) {
     try {
-        const luxonDate = DateTime.fromFormat(publicationDate, 'yyyy/MM/dd');
+        const luxonDate = DateTime.fromFormat(publicationDate, 'yyyy-MM-dd');
         
         // Check if the Luxon date is valid and if the formatted string matches the input
-        return luxonDate.isValid && luxonDate.toFormat('yyyy/MM/dd') === publicationDate;
+        return luxonDate.isValid && luxonDate.toFormat('yyyy-MM-dd') === publicationDate;
     } catch (error) {
         // Handle parsing errors (e.g., invalid date string)
         return false;

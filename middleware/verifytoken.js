@@ -15,9 +15,9 @@ function verifyToken(req, res, next) {
 
     const token = authorizationHeader.split(' ')[1];
     const decodedToken = jwt.decode(token, { complete: true });
-    console.log('Decoded Token:', decodedToken);
+    //console.log('Decoded Token:', decodedToken);
     jwt.verify(token, secretKey, (err, decoded) => {
-        console.log(secretKey);
+        //console.log(secretKey);
         
         if (err) {
             console.error('JWT Verification Error:', err.message);

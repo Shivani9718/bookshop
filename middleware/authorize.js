@@ -29,7 +29,7 @@ async function verifyAdminToken(req, res, next) {
 
   
     const userToCheck = await db('Users').where('email', decoded.email).first();
-
+console.log(userToCheck);
     if (!userToCheck) {
       return res.status(401).json({ error: 'User not found' });
     }
@@ -39,6 +39,7 @@ async function verifyAdminToken(req, res, next) {
     .select('Users.email', 'admin.role as admin_role')
       .where('Users.email', decoded.email)
      .first();
+     console.log(result);
 
 if (result && result.admin_role === 'admin') {
   console.log("access");

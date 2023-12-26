@@ -14,6 +14,7 @@ require('dotenv').config();
 app.use(bodyParser.json());
 app.use(express.json());
 const validateBook = require('../validators/validationError'); 
+const elasticClient = require('../elasticSearch');
 
 
 
@@ -45,9 +46,14 @@ router.delete('/:bookId', verifyAdminToken, async (req, res) => {
   
       // Delete the book
       const deletedCount = await db('Books').where('id', bookId).del();
-  
+      
       if (deletedCount > 0) {
         res.status(200).send('Book deleted successfully');
+        const response = await elasticClient.delete({
+          index: "books",
+         
+          id: req.params.bookId,
+        });
       } else {
         res.status(404).json({ message: 'Book not found' });
       }

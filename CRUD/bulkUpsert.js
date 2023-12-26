@@ -15,6 +15,8 @@ require('dotenv').config();
 const secretKey = process.env.secretKey ;
 app.use(bodyParser.json());
 app.use(express.json());
+const elasticClient = require('../elasticSearch');
+
 
 
 router.put('/', verifyAdminToken ,async (req, res) => {
@@ -24,6 +26,7 @@ router.put('/', verifyAdminToken ,async (req, res) => {
   
      successResponses : [],
     }
+    const bulkRequests = [];
 
     for (let i = 0; i < req.body.length; i++) {
 
@@ -42,7 +45,15 @@ router.put('/', verifyAdminToken ,async (req, res) => {
           result.errorLog.push(validationError);
           continue;
         }
-
+        await elasticClient.update({
+          index: 'books',
+          id: req.body[i].id,
+          body: {
+            doc: req.body[i], // Update the document with the new values for the specific book
+            doc_as_upsert: false
+          }
+        });
+        
         // Update the book with the provided 'id'
         await db('Books').where('id', req.body[i].id).update(req.body[i]);
         result.successResponses.push(`The Book with id :[${req.body[i].id}] has been updated successfully!`);
@@ -77,20 +88,27 @@ router.put('/', verifyAdminToken ,async (req, res) => {
           result.errorLog.push(validationError);
           continue;
         }
+        const [bookObject] = await db('Books').insert( req.body[i],'id');
+         
 
-        // Insert a new book
-        await db('Books').insert(req.body[i]);
         result.successResponses.push("A New Book has been added ");
-        continue;
+ 
+        const books = req.body;
+        const bookId = bookObject.id;
+        
+        //const insertedBook = await db('Books').where('id', bookId).first();
+         await elasticClient.index({
+        index: 'books',
+        id: bookId.toString(), // Convert the ID to a string
+        body:req.body[i],
+        }); 
+       
+
+
+        
       }
     }
-
-    // if (errorLog.length > 0) {
-    //     result.push(...errorLog);
-    //   }
-    // if (successResponse.length > 0 ){
-    //     result.push(...successResponses );
-    // }
+   
 
     return res.status(200).json(result);
   } catch (error) {
